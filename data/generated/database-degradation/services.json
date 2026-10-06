@@ -1,0 +1,60 @@
+[
+  {
+    "id": "api-gateway",
+    "name": "API Gateway",
+    "tier": "edge",
+    "criticality": "critical",
+    "dependencies": [
+      "order-service",
+      "payment-service"
+    ]
+  },
+  {
+    "id": "order-service",
+    "name": "Order Service",
+    "tier": "application",
+    "criticality": "critical",
+    "dependencies": [
+      "orders-db",
+      "redis-cache"
+    ]
+  },
+  {
+    "id": "payment-service",
+    "name": "Payment Service",
+    "tier": "application",
+    "criticality": "critical",
+    "dependencies": [
+      "payments-db",
+      "payment-provider-api"
+    ]
+  },
+  {
+    "id": "orders-db",
+    "name": "Orders PostgreSQL",
+    "tier": "data",
+    "criticality": "critical",
+    "dependencies": []
+  },
+  {
+    "id": "payments-db",
+    "name": "Payments PostgreSQL",
+    "tier": "data",
+    "criticality": "critical",
+    "dependencies": []
+  },
+  {
+    "id": "redis-cache",
+    "name": "Redis Cache",
+    "tier": "data",
+    "criticality": "high",
+    "dependencies": []
+  },
+  {
+    "id": "payment-provider-api",
+    "name": "Payment Provider API",
+    "tier": "dependency",
+    "criticality": "critical",
+    "dependencies": []
+  }
+]

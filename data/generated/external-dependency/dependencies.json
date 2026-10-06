@@ -1,0 +1,832 @@
+[
+  {
+    "id": "deptele-f4efd4250198",
+    "timestamp": "2026-10-07T09:00:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 153.67,
+    "error_rate": 0.00388,
+    "timeout_rate": 0.00097,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-07e99800af49",
+    "timestamp": "2026-10-07T09:02:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 161.66,
+    "error_rate": 0.00358,
+    "timeout_rate": 0.00028,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-94ed5ae04060",
+    "timestamp": "2026-10-07T09:04:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 146.55,
+    "error_rate": 0.00265,
+    "timeout_rate": 0.00069,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-1dba364e2fd7",
+    "timestamp": "2026-10-07T09:06:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 167.37,
+    "error_rate": 0.00327,
+    "timeout_rate": 0.00028,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-b4bcdbd5aed9",
+    "timestamp": "2026-10-07T09:08:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 158.73,
+    "error_rate": 0.00315,
+    "timeout_rate": 0.0003,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-cbba33655915",
+    "timestamp": "2026-10-07T09:10:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 164.22,
+    "error_rate": 0.00267,
+    "timeout_rate": 0.0006,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-fb0330f73a90",
+    "timestamp": "2026-10-07T09:12:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 168.12,
+    "error_rate": 0.00465,
+    "timeout_rate": 0.00066,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-7c9a74445fa0",
+    "timestamp": "2026-10-07T09:14:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 135.87,
+    "error_rate": 0.00381,
+    "timeout_rate": 0.00091,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-15db281c8c17",
+    "timestamp": "2026-10-07T09:16:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 160.05,
+    "error_rate": 0.00274,
+    "timeout_rate": 0.0009,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-b640ddc078fb",
+    "timestamp": "2026-10-07T09:18:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 159.37,
+    "error_rate": 0.00215,
+    "timeout_rate": 0.00102,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-74b514c64bc2",
+    "timestamp": "2026-10-07T09:20:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 149.56,
+    "error_rate": 0.00278,
+    "timeout_rate": 0.00058,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-7201b70b64b7",
+    "timestamp": "2026-10-07T09:22:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 148.52,
+    "error_rate": 0.00295,
+    "timeout_rate": 0.00131,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-130e7dacc8b5",
+    "timestamp": "2026-10-07T09:24:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 155.34,
+    "error_rate": 0.00394,
+    "timeout_rate": 0.00138,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-7ec3511ce4ab",
+    "timestamp": "2026-10-07T09:26:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 161.15,
+    "error_rate": 0.00268,
+    "timeout_rate": 0.00135,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-1c7dc37b30b5",
+    "timestamp": "2026-10-07T09:28:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 165.35,
+    "error_rate": 0.00207,
+    "timeout_rate": 0.001,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-2b2f374f3f46",
+    "timestamp": "2026-10-07T09:30:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 153.08,
+    "error_rate": 0.00481,
+    "timeout_rate": 0.00115,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-291a2039b586",
+    "timestamp": "2026-10-07T09:32:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 147.4,
+    "error_rate": 0.00275,
+    "timeout_rate": 0.00038,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-0000a52dfcf8",
+    "timestamp": "2026-10-07T09:34:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 156.85,
+    "error_rate": 0.00322,
+    "timeout_rate": 0.00141,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-3dfb85fe086a",
+    "timestamp": "2026-10-07T09:36:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 154.2,
+    "error_rate": 0.00183,
+    "timeout_rate": 0.00085,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-a9945126b87a",
+    "timestamp": "2026-10-07T09:38:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 145.9,
+    "error_rate": 0.00214,
+    "timeout_rate": 0.00073,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-b325755e182f",
+    "timestamp": "2026-10-07T09:40:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 161.96,
+    "error_rate": 0.00339,
+    "timeout_rate": 0.00069,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-25ef65d0d862",
+    "timestamp": "2026-10-07T09:42:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 151.92,
+    "error_rate": 0.00341,
+    "timeout_rate": 0.00134,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-088bcbbe9aa1",
+    "timestamp": "2026-10-07T09:44:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 176.16,
+    "error_rate": 0.00285,
+    "timeout_rate": 0.00132,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-7c9697001a45",
+    "timestamp": "2026-10-07T09:46:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 139.95,
+    "error_rate": 0.00228,
+    "timeout_rate": 0.00173,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-6c86dd9791a3",
+    "timestamp": "2026-10-07T09:48:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 155.72,
+    "error_rate": 0.00186,
+    "timeout_rate": 0.00066,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-fd630311923d",
+    "timestamp": "2026-10-07T09:50:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 179.48,
+    "error_rate": 0.00254,
+    "timeout_rate": 0.00082,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-aa9d194d6616",
+    "timestamp": "2026-10-07T09:52:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 155.14,
+    "error_rate": 0.00338,
+    "timeout_rate": 0.0022,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-193748a99f65",
+    "timestamp": "2026-10-07T09:54:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 138.67,
+    "error_rate": 0.00325,
+    "timeout_rate": 0.00062,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-61d64d8bbf63",
+    "timestamp": "2026-10-07T09:56:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 145.94,
+    "error_rate": 0.00474,
+    "timeout_rate": 0.00101,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-54e2a5675ea3",
+    "timestamp": "2026-10-07T09:58:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 161.09,
+    "error_rate": 0.0034,
+    "timeout_rate": 9e-05,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-c504d023f8ad",
+    "timestamp": "2026-10-07T10:00:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 163.17,
+    "error_rate": 0.00077,
+    "timeout_rate": 0.00166,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-59bdf2e42e79",
+    "timestamp": "2026-10-07T10:02:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 152.67,
+    "error_rate": 0.00362,
+    "timeout_rate": 0.00059,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-0fc786487c98",
+    "timestamp": "2026-10-07T10:04:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 170.96,
+    "error_rate": 0.00429,
+    "timeout_rate": 0.00104,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-768d1aa13ed9",
+    "timestamp": "2026-10-07T10:06:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 135.87,
+    "error_rate": 0.00537,
+    "timeout_rate": 0.00174,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-cf148cfea90a",
+    "timestamp": "2026-10-07T10:08:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 149.65,
+    "error_rate": 0.00411,
+    "timeout_rate": 0.00182,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-80c6743bff81",
+    "timestamp": "2026-10-07T10:10:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 148.09,
+    "error_rate": 0.00388,
+    "timeout_rate": 0.00073,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-1c3e1c2ca8f7",
+    "timestamp": "2026-10-07T10:12:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 141.48,
+    "error_rate": 0.00403,
+    "timeout_rate": 0.00121,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-c54843c655db",
+    "timestamp": "2026-10-07T10:14:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 162.51,
+    "error_rate": 0.00382,
+    "timeout_rate": 0.0,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-5267270de716",
+    "timestamp": "2026-10-07T10:16:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 143.49,
+    "error_rate": 0.00155,
+    "timeout_rate": 0.00099,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-3944fa66c54e",
+    "timestamp": "2026-10-07T10:18:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 137.48,
+    "error_rate": 0.0023,
+    "timeout_rate": 0.00046,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-c7d695f7d32b",
+    "timestamp": "2026-10-07T10:20:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 147.29,
+    "error_rate": 0.00182,
+    "timeout_rate": 0.00201,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-7a19fddb60a2",
+    "timestamp": "2026-10-07T10:22:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 128.72,
+    "error_rate": 0.00438,
+    "timeout_rate": 0.00061,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-20a991362468",
+    "timestamp": "2026-10-07T10:24:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 151.64,
+    "error_rate": 0.00346,
+    "timeout_rate": 0.0009,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-e131635565bf",
+    "timestamp": "2026-10-07T10:26:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 142.31,
+    "error_rate": 0.00385,
+    "timeout_rate": 0.00131,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-a3fa5b4faf85",
+    "timestamp": "2026-10-07T10:28:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 122.57,
+    "error_rate": 0.00506,
+    "timeout_rate": 0.00032,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-a5997621395a",
+    "timestamp": "2026-10-07T10:30:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 143.48,
+    "error_rate": 0.00277,
+    "timeout_rate": 0.00054,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-9a7a637ef130",
+    "timestamp": "2026-10-07T10:32:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 166.16,
+    "error_rate": 0.00362,
+    "timeout_rate": 0.00072,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-c2ad98e02b03",
+    "timestamp": "2026-10-07T10:34:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 138.85,
+    "error_rate": 0.00255,
+    "timeout_rate": 0.00082,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-627090699ef6",
+    "timestamp": "2026-10-07T10:36:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 169.04,
+    "error_rate": 0.00391,
+    "timeout_rate": 7e-05,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-e8244361bef3",
+    "timestamp": "2026-10-07T10:38:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 149.79,
+    "error_rate": 0.00174,
+    "timeout_rate": 0.00235,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-091a549a92e2",
+    "timestamp": "2026-10-07T10:40:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 160.8,
+    "error_rate": 0.00214,
+    "timeout_rate": 0.00184,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-3c60f78003df",
+    "timestamp": "2026-10-07T10:42:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 140.99,
+    "error_rate": 0.001,
+    "timeout_rate": 0.0012,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-5a0a2e27f73d",
+    "timestamp": "2026-10-07T10:44:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 183.48,
+    "error_rate": 0.00235,
+    "timeout_rate": 0.00103,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-588e9151d30f",
+    "timestamp": "2026-10-07T10:46:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 174.44,
+    "error_rate": 0.00432,
+    "timeout_rate": 0.00113,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-a51f7cbc8672",
+    "timestamp": "2026-10-07T10:48:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 148.61,
+    "error_rate": 0.00472,
+    "timeout_rate": 0.00054,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-8a0cdd944361",
+    "timestamp": "2026-10-07T10:50:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 134.98,
+    "error_rate": 0.00247,
+    "timeout_rate": 0.00082,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-858999856258",
+    "timestamp": "2026-10-07T10:52:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 185.26,
+    "error_rate": 0.004,
+    "timeout_rate": 0.00078,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-c4d18a2e275c",
+    "timestamp": "2026-10-07T10:54:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 153.09,
+    "error_rate": 0.00359,
+    "timeout_rate": 0.00037,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-3e64536c3020",
+    "timestamp": "2026-10-07T10:56:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 150.63,
+    "error_rate": 0.00387,
+    "timeout_rate": 0.001,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-584f51c9ebae",
+    "timestamp": "2026-10-07T10:58:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 149.68,
+    "error_rate": 0.00267,
+    "timeout_rate": 0.00105,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-3f9055277ea3",
+    "timestamp": "2026-10-07T11:00:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 841.47,
+    "error_rate": 0.14735,
+    "timeout_rate": 0.07663,
+    "status": "failed"
+  },
+  {
+    "id": "deptele-7cb9f021a483",
+    "timestamp": "2026-10-07T11:02:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 822.56,
+    "error_rate": 0.08776,
+    "timeout_rate": 0.07803,
+    "status": "failed"
+  },
+  {
+    "id": "deptele-b30713d2715e",
+    "timestamp": "2026-10-07T11:04:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 821.16,
+    "error_rate": 0.12021,
+    "timeout_rate": 0.07687,
+    "status": "failed"
+  },
+  {
+    "id": "deptele-31ee89ce3659",
+    "timestamp": "2026-10-07T11:06:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 797.36,
+    "error_rate": 0.1125,
+    "timeout_rate": 0.07037,
+    "status": "failed"
+  },
+  {
+    "id": "deptele-724d782e28d1",
+    "timestamp": "2026-10-07T11:08:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 807.7,
+    "error_rate": 0.10973,
+    "timeout_rate": 0.0847,
+    "status": "failed"
+  },
+  {
+    "id": "deptele-e798039e3328",
+    "timestamp": "2026-10-07T11:10:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 813.85,
+    "error_rate": 0.09922,
+    "timeout_rate": 0.06432,
+    "status": "failed"
+  },
+  {
+    "id": "deptele-3aa734ba90f4",
+    "timestamp": "2026-10-07T11:12:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 807.07,
+    "error_rate": 0.11024,
+    "timeout_rate": 0.09342,
+    "status": "failed"
+  },
+  {
+    "id": "deptele-319999893244",
+    "timestamp": "2026-10-07T11:14:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 781.56,
+    "error_rate": 0.10497,
+    "timeout_rate": 0.09723,
+    "status": "failed"
+  },
+  {
+    "id": "deptele-450cdd041a59",
+    "timestamp": "2026-10-07T11:16:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 794.36,
+    "error_rate": 0.14518,
+    "timeout_rate": 0.08426,
+    "status": "failed"
+  },
+  {
+    "id": "deptele-bea1a50327f4",
+    "timestamp": "2026-10-07T11:18:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 805.72,
+    "error_rate": 0.10769,
+    "timeout_rate": 0.05734,
+    "status": "failed"
+  },
+  {
+    "id": "deptele-f416750407c1",
+    "timestamp": "2026-10-07T11:20:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 171.97,
+    "error_rate": 0.00402,
+    "timeout_rate": 0.002,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-988b2b767b03",
+    "timestamp": "2026-10-07T11:22:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 171.08,
+    "error_rate": 0.00217,
+    "timeout_rate": 0.00062,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-4b5467582e40",
+    "timestamp": "2026-10-07T11:24:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 154.52,
+    "error_rate": 0.00478,
+    "timeout_rate": 0.00046,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-15610f8d08c9",
+    "timestamp": "2026-10-07T11:26:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 153.08,
+    "error_rate": 0.00255,
+    "timeout_rate": 0.00018,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-aa6d71151db2",
+    "timestamp": "2026-10-07T11:28:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 159.07,
+    "error_rate": 0.00411,
+    "timeout_rate": 0.00052,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-64793f28c0b2",
+    "timestamp": "2026-10-07T11:30:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 167.02,
+    "error_rate": 0.00202,
+    "timeout_rate": 0.00127,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-936b3d8f3280",
+    "timestamp": "2026-10-07T11:32:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 145.92,
+    "error_rate": 0.00439,
+    "timeout_rate": 0.00024,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-00fe5bbf94ef",
+    "timestamp": "2026-10-07T11:34:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 149.12,
+    "error_rate": 0.00298,
+    "timeout_rate": 0.00105,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-03f5dca960f9",
+    "timestamp": "2026-10-07T11:36:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 173.58,
+    "error_rate": 0.00376,
+    "timeout_rate": 0.00084,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-a19fc9f6bf4c",
+    "timestamp": "2026-10-07T11:38:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 155.96,
+    "error_rate": 0.00321,
+    "timeout_rate": 0.00029,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-593a9cfaa15e",
+    "timestamp": "2026-10-07T11:40:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 166.71,
+    "error_rate": 0.00178,
+    "timeout_rate": 0.00153,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-981c95e82283",
+    "timestamp": "2026-10-07T11:42:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 173.08,
+    "error_rate": 0.00205,
+    "timeout_rate": 0.00093,
+    "status": "healthy"
+  },
+  {
+    "id": "deptele-8f698df5e55c",
+    "timestamp": "2026-10-07T11:44:00Z",
+    "service": "payment-service",
+    "dependency": "payment-provider-api",
+    "latency_ms": 158.85,
+    "error_rate": 0.00162,
+    "timeout_rate": 0.00156,
+    "status": "healthy"
+  }
+]

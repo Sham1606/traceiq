@@ -1,0 +1,15 @@
+{
+  "id": "inc-51f45d4d07cd",
+  "scenario_id": "database-degradation",
+  "title": "Payment database performance degradation",
+  "status": "recovered",
+  "severity": "sev2",
+  "started_at": "2026-10-07T11:00:00Z",
+  "detected_at": "2026-10-07T11:04:00Z",
+  "recovered_at": "2026-10-07T11:45:00Z",
+  "affected_services": [
+    "api-gateway",
+    "payment-service"
+  ],
+  "description": "Payment failures rise as database latency and connection pressure increase; a recent application release is a plausible but incorrect lead."
+}

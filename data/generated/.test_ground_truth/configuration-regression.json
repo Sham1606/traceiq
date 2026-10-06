@@ -1,0 +1,15 @@
+{
+  "scenario_id": "configuration-regression",
+  "root_cause_category": "configuration_regression",
+  "root_cause_service": "payment-service",
+  "primary_evidence_ids": [
+    "met-2dc651beba53",
+    "met-1c05411bff61",
+    "met-8efafb0a0162",
+    "met-310bde123a76",
+    "met-a9aeecb6dc57"
+  ],
+  "contradictory_lead": "external_dependency_failure",
+  "expected_recovery_action": "Restore the previous timeout configuration and restart affected workers using the approved rollout path.",
+  "expected_post_recovery_state": "payment-service error rate and latency return close to baseline within recovery window"
+}

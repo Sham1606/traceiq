@@ -1,0 +1,12 @@
+[
+  {
+    "id": "dep-a51f7cbc8672",
+    "timestamp": "2026-10-07T10:48:17Z",
+    "service": "payment-service",
+    "version_from": "v4.18.2",
+    "version_to": "v4.18.3",
+    "environment": "production",
+    "status": "success",
+    "actor": "release-bot"
+  }
+]

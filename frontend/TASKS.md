@@ -1,0 +1,11 @@
+# Frontend Tasks
+- [x] F001 Shell/routing/API client (AppShell, React Router, typed api.ts client).
+- [x] F002 Incident dashboard (IncidentsPage with severity/status filters and stats).
+- [x] F003 Investigation workspace (WorkspacePage with pipeline stepper and unified navigation).
+- [x] F004 Evidence and hypotheses (EvidenceSection with metric/log anomalies, HypothesesSection with strength ratings).
+- [x] F005 Challenge RCA (ChallengeSection with honest pending status for Phase 5 agent).
+- [x] F006 Historical incidents (HistoricalMemorySection with search and contextual disclaimer rule).
+- [x] F007 Recovery approval/simulation (RecoverySection with mandatory human gate, simulation, and outcome tracking).
+- [x] F008 Audit/postmortem (AuditSection with immutable timeline and PostmortemSection with pending status).
+- [x] F009 (Phase 4.5) Investigation UX & Information Hierarchy Upgrade (InvestigationSummary, dynamic causal chain, What Changed summary, disambiguated pipeline state).
+- [x] Tests: Critical states, badges, evidence, hypotheses, timeline, recovery, E2E integration, and Phase 4.5 UX checks (20 tests passed across 7 test files).

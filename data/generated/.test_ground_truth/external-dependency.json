@@ -1,0 +1,15 @@
+{
+  "scenario_id": "external-dependency",
+  "root_cause_category": "external_dependency_failure",
+  "root_cause_service": "payment-provider-api",
+  "primary_evidence_ids": [
+    "met-c42ecd80cc8b",
+    "met-b84a0aeb8692",
+    "met-ad97e5a56496",
+    "met-a4f5f00601e9",
+    "met-7d8f11229917"
+  ],
+  "contradictory_lead": "bad_deployment",
+  "expected_recovery_action": "Route payment traffic to the healthy provider path or activate the configured provider failover.",
+  "expected_post_recovery_state": "payment-service error rate and latency return close to baseline within recovery window"
+}

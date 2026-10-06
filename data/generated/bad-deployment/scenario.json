@@ -1,0 +1,15 @@
+{
+  "id": "inc-7f5b553f8808",
+  "scenario_id": "bad-deployment",
+  "title": "Payment API regression after deployment",
+  "status": "recovered",
+  "severity": "sev2",
+  "started_at": "2026-10-07T11:00:00Z",
+  "detected_at": "2026-10-07T11:04:00Z",
+  "recovered_at": "2026-10-07T11:45:00Z",
+  "affected_services": [
+    "api-gateway",
+    "payment-service"
+  ],
+  "description": "Payment requests degrade shortly after a production release, with elevated query pressure as a downstream symptom."
+}

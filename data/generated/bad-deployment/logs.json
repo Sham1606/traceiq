@@ -1,0 +1,854 @@
+[
+  {
+    "id": "log-532532aaa0f8",
+    "timestamp": "2026-10-07T09:00:39Z",
+    "service": "api-gateway",
+    "level": "INFO",
+    "event_type": "request_completed",
+    "message": "request completed successfully",
+    "trace_id": "trace-fb767c99934d",
+    "metadata": {
+      "status_code": 200
+    }
+  },
+  {
+    "id": "log-01d349f45fff",
+    "timestamp": "2026-10-07T09:01:58Z",
+    "service": "payment-service",
+    "level": "INFO",
+    "event_type": "payment_request",
+    "message": "payment authorization request processed",
+    "trace_id": "trace-1469e5f9b726",
+    "metadata": {
+      "provider": "primary"
+    }
+  },
+  {
+    "id": "log-293258cb63e0",
+    "timestamp": "2026-10-07T09:07:33Z",
+    "service": "api-gateway",
+    "level": "INFO",
+    "event_type": "request_completed",
+    "message": "request completed successfully",
+    "trace_id": "trace-834eb8f4521a",
+    "metadata": {
+      "status_code": 200
+    }
+  },
+  {
+    "id": "log-d43a4284f33e",
+    "timestamp": "2026-10-07T09:08:44Z",
+    "service": "payment-service",
+    "level": "INFO",
+    "event_type": "payment_request",
+    "message": "payment authorization request processed",
+    "trace_id": "trace-fb5077cdab5d",
+    "metadata": {
+      "provider": "primary"
+    }
+  },
+  {
+    "id": "log-6635e216bd7d",
+    "timestamp": "2026-10-07T09:14:59Z",
+    "service": "api-gateway",
+    "level": "INFO",
+    "event_type": "request_completed",
+    "message": "request completed successfully",
+    "trace_id": "trace-fe9e342bcd2a",
+    "metadata": {
+      "status_code": 200
+    }
+  },
+  {
+    "id": "log-f3b10d9bbaf2",
+    "timestamp": "2026-10-07T09:15:00Z",
+    "service": "payment-service",
+    "level": "INFO",
+    "event_type": "payment_request",
+    "message": "payment authorization request processed",
+    "trace_id": "trace-45e601b46fb7",
+    "metadata": {
+      "provider": "primary"
+    }
+  },
+  {
+    "id": "log-b955018903d3",
+    "timestamp": "2026-10-07T09:21:19Z",
+    "service": "api-gateway",
+    "level": "INFO",
+    "event_type": "request_completed",
+    "message": "request completed successfully",
+    "trace_id": "trace-3a5e2e24411c",
+    "metadata": {
+      "status_code": 200
+    }
+  },
+  {
+    "id": "log-458187eb5f60",
+    "timestamp": "2026-10-07T09:22:10Z",
+    "service": "payment-service",
+    "level": "INFO",
+    "event_type": "payment_request",
+    "message": "payment authorization request processed",
+    "trace_id": "trace-b642f0088f7f",
+    "metadata": {
+      "provider": "primary"
+    }
+  },
+  {
+    "id": "log-ae18934e0994",
+    "timestamp": "2026-10-07T09:28:08Z",
+    "service": "api-gateway",
+    "level": "INFO",
+    "event_type": "request_completed",
+    "message": "request completed successfully",
+    "trace_id": "trace-febbfe4a0262",
+    "metadata": {
+      "status_code": 200
+    }
+  },
+  {
+    "id": "log-884e07561c60",
+    "timestamp": "2026-10-07T09:29:20Z",
+    "service": "payment-service",
+    "level": "INFO",
+    "event_type": "payment_request",
+    "message": "payment authorization request processed",
+    "trace_id": "trace-71e7d5c7799d",
+    "metadata": {
+      "provider": "primary"
+    }
+  },
+  {
+    "id": "log-2aec9cc35546",
+    "timestamp": "2026-10-07T09:35:12Z",
+    "service": "api-gateway",
+    "level": "INFO",
+    "event_type": "request_completed",
+    "message": "request completed successfully",
+    "trace_id": "trace-cefaab744396",
+    "metadata": {
+      "status_code": 200
+    }
+  },
+  {
+    "id": "log-7f94cfee02c7",
+    "timestamp": "2026-10-07T09:36:13Z",
+    "service": "payment-service",
+    "level": "INFO",
+    "event_type": "payment_request",
+    "message": "payment authorization request processed",
+    "trace_id": "trace-6e5a6b0cab22",
+    "metadata": {
+      "provider": "primary"
+    }
+  },
+  {
+    "id": "log-8a0c1ba69f8e",
+    "timestamp": "2026-10-07T09:42:50Z",
+    "service": "api-gateway",
+    "level": "INFO",
+    "event_type": "request_completed",
+    "message": "request completed successfully",
+    "trace_id": "trace-f1e4be615112",
+    "metadata": {
+      "status_code": 200
+    }
+  },
+  {
+    "id": "log-bdad2bd8d92b",
+    "timestamp": "2026-10-07T09:43:50Z",
+    "service": "payment-service",
+    "level": "INFO",
+    "event_type": "payment_request",
+    "message": "payment authorization request processed",
+    "trace_id": "trace-1e497983fbe8",
+    "metadata": {
+      "provider": "primary"
+    }
+  },
+  {
+    "id": "log-ea6fef6f6cc1",
+    "timestamp": "2026-10-07T09:49:39Z",
+    "service": "api-gateway",
+    "level": "INFO",
+    "event_type": "request_completed",
+    "message": "request completed successfully",
+    "trace_id": "trace-33d14e955f72",
+    "metadata": {
+      "status_code": 200
+    }
+  },
+  {
+    "id": "log-2bda95892dfc",
+    "timestamp": "2026-10-07T09:50:34Z",
+    "service": "payment-service",
+    "level": "INFO",
+    "event_type": "payment_request",
+    "message": "payment authorization request processed",
+    "trace_id": "trace-fe33aa90ce80",
+    "metadata": {
+      "provider": "primary"
+    }
+  },
+  {
+    "id": "log-626ac27bcb75",
+    "timestamp": "2026-10-07T09:56:24Z",
+    "service": "api-gateway",
+    "level": "INFO",
+    "event_type": "request_completed",
+    "message": "request completed successfully",
+    "trace_id": "trace-45427c46f892",
+    "metadata": {
+      "status_code": 200
+    }
+  },
+  {
+    "id": "log-4b7b40253e18",
+    "timestamp": "2026-10-07T09:57:35Z",
+    "service": "payment-service",
+    "level": "INFO",
+    "event_type": "payment_request",
+    "message": "payment authorization request processed",
+    "trace_id": "trace-c9a77b1ba8e1",
+    "metadata": {
+      "provider": "primary"
+    }
+  },
+  {
+    "id": "log-d07191a34313",
+    "timestamp": "2026-10-07T10:03:25Z",
+    "service": "api-gateway",
+    "level": "INFO",
+    "event_type": "request_completed",
+    "message": "request completed successfully",
+    "trace_id": "trace-73aa41582d58",
+    "metadata": {
+      "status_code": 200
+    }
+  },
+  {
+    "id": "log-37eeaf791bec",
+    "timestamp": "2026-10-07T10:04:37Z",
+    "service": "payment-service",
+    "level": "INFO",
+    "event_type": "payment_request",
+    "message": "payment authorization request processed",
+    "trace_id": "trace-77429c22c7b0",
+    "metadata": {
+      "provider": "primary"
+    }
+  },
+  {
+    "id": "log-cde75ccfeaf5",
+    "timestamp": "2026-10-07T10:10:40Z",
+    "service": "api-gateway",
+    "level": "INFO",
+    "event_type": "request_completed",
+    "message": "request completed successfully",
+    "trace_id": "trace-f77791c9cd65",
+    "metadata": {
+      "status_code": 200
+    }
+  },
+  {
+    "id": "log-89c83fefab19",
+    "timestamp": "2026-10-07T10:11:00Z",
+    "service": "payment-service",
+    "level": "INFO",
+    "event_type": "payment_request",
+    "message": "payment authorization request processed",
+    "trace_id": "trace-227d31f7d131",
+    "metadata": {
+      "provider": "primary"
+    }
+  },
+  {
+    "id": "log-7748ed65e6ba",
+    "timestamp": "2026-10-07T10:17:19Z",
+    "service": "api-gateway",
+    "level": "INFO",
+    "event_type": "request_completed",
+    "message": "request completed successfully",
+    "trace_id": "trace-4da940beb3e5",
+    "metadata": {
+      "status_code": 200
+    }
+  },
+  {
+    "id": "log-ae40165bb588",
+    "timestamp": "2026-10-07T10:18:15Z",
+    "service": "payment-service",
+    "level": "INFO",
+    "event_type": "payment_request",
+    "message": "payment authorization request processed",
+    "trace_id": "trace-ab5f6ed61546",
+    "metadata": {
+      "provider": "primary"
+    }
+  },
+  {
+    "id": "log-5ef276f2ba43",
+    "timestamp": "2026-10-07T10:24:16Z",
+    "service": "api-gateway",
+    "level": "INFO",
+    "event_type": "request_completed",
+    "message": "request completed successfully",
+    "trace_id": "trace-2f04e7db4e24",
+    "metadata": {
+      "status_code": 200
+    }
+  },
+  {
+    "id": "log-ab1ca8bbebdb",
+    "timestamp": "2026-10-07T10:25:45Z",
+    "service": "payment-service",
+    "level": "INFO",
+    "event_type": "payment_request",
+    "message": "payment authorization request processed",
+    "trace_id": "trace-139247ad50de",
+    "metadata": {
+      "provider": "primary"
+    }
+  },
+  {
+    "id": "log-46f85a082d10",
+    "timestamp": "2026-10-07T10:31:32Z",
+    "service": "api-gateway",
+    "level": "INFO",
+    "event_type": "request_completed",
+    "message": "request completed successfully",
+    "trace_id": "trace-04c92bf46380",
+    "metadata": {
+      "status_code": 200
+    }
+  },
+  {
+    "id": "log-c9cf641a2bf0",
+    "timestamp": "2026-10-07T10:32:52Z",
+    "service": "payment-service",
+    "level": "INFO",
+    "event_type": "payment_request",
+    "message": "payment authorization request processed",
+    "trace_id": "trace-9679b2471808",
+    "metadata": {
+      "provider": "primary"
+    }
+  },
+  {
+    "id": "log-bacadf38d532",
+    "timestamp": "2026-10-07T10:38:19Z",
+    "service": "api-gateway",
+    "level": "INFO",
+    "event_type": "request_completed",
+    "message": "request completed successfully",
+    "trace_id": "trace-e1373ce42981",
+    "metadata": {
+      "status_code": 200
+    }
+  },
+  {
+    "id": "log-8f6d077d0e53",
+    "timestamp": "2026-10-07T10:39:38Z",
+    "service": "payment-service",
+    "level": "INFO",
+    "event_type": "payment_request",
+    "message": "payment authorization request processed",
+    "trace_id": "trace-8bf1568a923c",
+    "metadata": {
+      "provider": "primary"
+    }
+  },
+  {
+    "id": "log-71cb1b219905",
+    "timestamp": "2026-10-07T10:45:32Z",
+    "service": "api-gateway",
+    "level": "INFO",
+    "event_type": "request_completed",
+    "message": "request completed successfully",
+    "trace_id": "trace-16ed7a758df4",
+    "metadata": {
+      "status_code": 200
+    }
+  },
+  {
+    "id": "log-9bb5e3161e1f",
+    "timestamp": "2026-10-07T10:46:38Z",
+    "service": "payment-service",
+    "level": "INFO",
+    "event_type": "payment_request",
+    "message": "payment authorization request processed",
+    "trace_id": "trace-0a18870ca945",
+    "metadata": {
+      "provider": "primary"
+    }
+  },
+  {
+    "id": "log-a411e75ffda4",
+    "timestamp": "2026-10-07T10:52:27Z",
+    "service": "api-gateway",
+    "level": "INFO",
+    "event_type": "request_completed",
+    "message": "request completed successfully",
+    "trace_id": "trace-3684a37490ec",
+    "metadata": {
+      "status_code": 200
+    }
+  },
+  {
+    "id": "log-93db7b49936a",
+    "timestamp": "2026-10-07T10:53:02Z",
+    "service": "payment-service",
+    "level": "INFO",
+    "event_type": "payment_request",
+    "message": "payment authorization request processed",
+    "trace_id": "trace-52c32e2bfe38",
+    "metadata": {
+      "provider": "primary"
+    }
+  },
+  {
+    "id": "log-d594a04db5d6",
+    "timestamp": "2026-10-07T10:59:41Z",
+    "service": "api-gateway",
+    "level": "INFO",
+    "event_type": "request_completed",
+    "message": "request completed successfully",
+    "trace_id": "trace-69a7d52261c2",
+    "metadata": {
+      "status_code": 200
+    }
+  },
+  {
+    "id": "log-04748539ccc8",
+    "timestamp": "2026-10-07T11:00:26Z",
+    "service": "payment-service",
+    "level": "INFO",
+    "event_type": "payment_request",
+    "message": "payment authorization request processed",
+    "trace_id": "trace-ea7904fac4bf",
+    "metadata": {
+      "provider": "primary"
+    }
+  },
+  {
+    "id": "log-54247aeb6a05",
+    "timestamp": "2026-10-07T11:06:28Z",
+    "service": "api-gateway",
+    "level": "INFO",
+    "event_type": "request_completed",
+    "message": "request completed successfully",
+    "trace_id": "trace-22eca1d916c9",
+    "metadata": {
+      "status_code": 200
+    }
+  },
+  {
+    "id": "log-40cb09470d7e",
+    "timestamp": "2026-10-07T11:07:39Z",
+    "service": "payment-service",
+    "level": "INFO",
+    "event_type": "payment_request",
+    "message": "payment authorization request processed",
+    "trace_id": "trace-f5a9b86067a5",
+    "metadata": {
+      "provider": "primary"
+    }
+  },
+  {
+    "id": "log-87b185e9fdd0",
+    "timestamp": "2026-10-07T11:13:26Z",
+    "service": "api-gateway",
+    "level": "INFO",
+    "event_type": "request_completed",
+    "message": "request completed successfully",
+    "trace_id": "trace-d7c72be176d7",
+    "metadata": {
+      "status_code": 200
+    }
+  },
+  {
+    "id": "log-f526838d3f77",
+    "timestamp": "2026-10-07T11:14:01Z",
+    "service": "payment-service",
+    "level": "INFO",
+    "event_type": "payment_request",
+    "message": "payment authorization request processed",
+    "trace_id": "trace-ab3b00940159",
+    "metadata": {
+      "provider": "primary"
+    }
+  },
+  {
+    "id": "log-5a022c566e34",
+    "timestamp": "2026-10-07T11:20:17Z",
+    "service": "api-gateway",
+    "level": "INFO",
+    "event_type": "request_completed",
+    "message": "request completed successfully",
+    "trace_id": "trace-96a2aebb119b",
+    "metadata": {
+      "status_code": 200
+    }
+  },
+  {
+    "id": "log-ad196df8c09b",
+    "timestamp": "2026-10-07T11:21:59Z",
+    "service": "payment-service",
+    "level": "INFO",
+    "event_type": "payment_request",
+    "message": "payment authorization request processed",
+    "trace_id": "trace-303e137be516",
+    "metadata": {
+      "provider": "primary"
+    }
+  },
+  {
+    "id": "log-732a08a21620",
+    "timestamp": "2026-10-07T11:27:45Z",
+    "service": "api-gateway",
+    "level": "INFO",
+    "event_type": "request_completed",
+    "message": "request completed successfully",
+    "trace_id": "trace-b45031fc3d4f",
+    "metadata": {
+      "status_code": 200
+    }
+  },
+  {
+    "id": "log-527f31978adc",
+    "timestamp": "2026-10-07T11:28:53Z",
+    "service": "payment-service",
+    "level": "INFO",
+    "event_type": "payment_request",
+    "message": "payment authorization request processed",
+    "trace_id": "trace-8a782b93b530",
+    "metadata": {
+      "provider": "primary"
+    }
+  },
+  {
+    "id": "log-beaf4d12bf56",
+    "timestamp": "2026-10-07T11:34:55Z",
+    "service": "api-gateway",
+    "level": "INFO",
+    "event_type": "request_completed",
+    "message": "request completed successfully",
+    "trace_id": "trace-7e4e16e83ad3",
+    "metadata": {
+      "status_code": 200
+    }
+  },
+  {
+    "id": "log-db2c0d358304",
+    "timestamp": "2026-10-07T11:35:42Z",
+    "service": "payment-service",
+    "level": "INFO",
+    "event_type": "payment_request",
+    "message": "payment authorization request processed",
+    "trace_id": "trace-90e900d7f847",
+    "metadata": {
+      "provider": "primary"
+    }
+  },
+  {
+    "id": "log-f0d25261c650",
+    "timestamp": "2026-10-07T11:41:50Z",
+    "service": "api-gateway",
+    "level": "INFO",
+    "event_type": "request_completed",
+    "message": "request completed successfully",
+    "trace_id": "trace-7d25d20a50fa",
+    "metadata": {
+      "status_code": 200
+    }
+  },
+  {
+    "id": "log-9b4ce6449eb1",
+    "timestamp": "2026-10-07T11:42:57Z",
+    "service": "payment-service",
+    "level": "INFO",
+    "event_type": "payment_request",
+    "message": "payment authorization request processed",
+    "trace_id": "trace-756e0a7a3871",
+    "metadata": {
+      "provider": "primary"
+    }
+  },
+  {
+    "id": "log-51311ca88d07",
+    "timestamp": "2026-10-07T11:00:21Z",
+    "service": "payment-service",
+    "level": "ERROR",
+    "event_type": "db_query_slow",
+    "message": "payment query exceeded latency threshold",
+    "trace_id": "trace-ea7904fac4bf",
+    "metadata": {
+      "query_class": "authorization_lookup"
+    }
+  },
+  {
+    "id": "log-348b0b8b6c81",
+    "timestamp": "2026-10-07T11:01:15Z",
+    "service": "payment-service",
+    "level": "ERROR",
+    "event_type": "request_failed",
+    "message": "payment request failed after downstream processing delay",
+    "trace_id": "trace-36ef0febb1b4",
+    "metadata": {
+      "status_code": 504
+    }
+  },
+  {
+    "id": "log-e74afd6f7e98",
+    "timestamp": "2026-10-07T11:02:41Z",
+    "service": "payment-service",
+    "level": "ERROR",
+    "event_type": "db_query_slow",
+    "message": "payment query exceeded latency threshold",
+    "trace_id": "trace-700c2415ec7b",
+    "metadata": {
+      "query_class": "authorization_lookup"
+    }
+  },
+  {
+    "id": "log-d0b04cd75dc0",
+    "timestamp": "2026-10-07T11:03:38Z",
+    "service": "payment-service",
+    "level": "ERROR",
+    "event_type": "request_failed",
+    "message": "payment request failed after downstream processing delay",
+    "trace_id": "trace-be4963d896f1",
+    "metadata": {
+      "status_code": 504
+    }
+  },
+  {
+    "id": "log-288c4c2e9447",
+    "timestamp": "2026-10-07T11:04:37Z",
+    "service": "payment-service",
+    "level": "ERROR",
+    "event_type": "db_query_slow",
+    "message": "payment query exceeded latency threshold",
+    "trace_id": "trace-4c1295f385fc",
+    "metadata": {
+      "query_class": "authorization_lookup"
+    }
+  },
+  {
+    "id": "log-e4d96aa92ac7",
+    "timestamp": "2026-10-07T11:05:11Z",
+    "service": "payment-service",
+    "level": "ERROR",
+    "event_type": "request_failed",
+    "message": "payment request failed after downstream processing delay",
+    "trace_id": "trace-2cac14756b97",
+    "metadata": {
+      "status_code": 504
+    }
+  },
+  {
+    "id": "log-593e5ddb97e0",
+    "timestamp": "2026-10-07T11:06:40Z",
+    "service": "payment-service",
+    "level": "ERROR",
+    "event_type": "db_query_slow",
+    "message": "payment query exceeded latency threshold",
+    "trace_id": "trace-ed3ae4eadb6b",
+    "metadata": {
+      "query_class": "authorization_lookup"
+    }
+  },
+  {
+    "id": "log-d8b5367b11cf",
+    "timestamp": "2026-10-07T11:07:29Z",
+    "service": "payment-service",
+    "level": "ERROR",
+    "event_type": "request_failed",
+    "message": "payment request failed after downstream processing delay",
+    "trace_id": "trace-f5a9b86067a5",
+    "metadata": {
+      "status_code": 504
+    }
+  },
+  {
+    "id": "log-107e7e23e5d8",
+    "timestamp": "2026-10-07T11:08:30Z",
+    "service": "payment-service",
+    "level": "ERROR",
+    "event_type": "db_query_slow",
+    "message": "payment query exceeded latency threshold",
+    "trace_id": "trace-bc78266cdb9b",
+    "metadata": {
+      "query_class": "authorization_lookup"
+    }
+  },
+  {
+    "id": "log-effbba34e6cc",
+    "timestamp": "2026-10-07T11:09:49Z",
+    "service": "payment-service",
+    "level": "ERROR",
+    "event_type": "request_failed",
+    "message": "payment request failed after downstream processing delay",
+    "trace_id": "trace-184db83069e2",
+    "metadata": {
+      "status_code": 504
+    }
+  },
+  {
+    "id": "log-73f3a05293d6",
+    "timestamp": "2026-10-07T11:10:27Z",
+    "service": "payment-service",
+    "level": "ERROR",
+    "event_type": "db_query_slow",
+    "message": "payment query exceeded latency threshold",
+    "trace_id": "trace-7f205077b033",
+    "metadata": {
+      "query_class": "authorization_lookup"
+    }
+  },
+  {
+    "id": "log-84d4a9a99af7",
+    "timestamp": "2026-10-07T11:11:23Z",
+    "service": "payment-service",
+    "level": "ERROR",
+    "event_type": "request_failed",
+    "message": "payment request failed after downstream processing delay",
+    "trace_id": "trace-ea74cab1676a",
+    "metadata": {
+      "status_code": 504
+    }
+  },
+  {
+    "id": "log-e68b6f6ef1d4",
+    "timestamp": "2026-10-07T11:12:58Z",
+    "service": "payment-service",
+    "level": "ERROR",
+    "event_type": "db_query_slow",
+    "message": "payment query exceeded latency threshold",
+    "trace_id": "trace-2b2f08a1e48f",
+    "metadata": {
+      "query_class": "authorization_lookup"
+    }
+  },
+  {
+    "id": "log-26ab55894f7c",
+    "timestamp": "2026-10-07T11:13:24Z",
+    "service": "payment-service",
+    "level": "ERROR",
+    "event_type": "request_failed",
+    "message": "payment request failed after downstream processing delay",
+    "trace_id": "trace-9ad6e006eb81",
+    "metadata": {
+      "status_code": 504
+    }
+  },
+  {
+    "id": "log-c7f809e488ea",
+    "timestamp": "2026-10-07T11:14:19Z",
+    "service": "payment-service",
+    "level": "ERROR",
+    "event_type": "db_query_slow",
+    "message": "payment query exceeded latency threshold",
+    "trace_id": "trace-ab3b00940159",
+    "metadata": {
+      "query_class": "authorization_lookup"
+    }
+  },
+  {
+    "id": "log-f5e6c314f3ef",
+    "timestamp": "2026-10-07T11:15:38Z",
+    "service": "payment-service",
+    "level": "ERROR",
+    "event_type": "request_failed",
+    "message": "payment request failed after downstream processing delay",
+    "trace_id": "trace-3529ef0b9eb9",
+    "metadata": {
+      "status_code": 504
+    }
+  },
+  {
+    "id": "log-0083aa6314f4",
+    "timestamp": "2026-10-07T11:16:21Z",
+    "service": "payment-service",
+    "level": "ERROR",
+    "event_type": "db_query_slow",
+    "message": "payment query exceeded latency threshold",
+    "trace_id": "trace-88074bc3fd2b",
+    "metadata": {
+      "query_class": "authorization_lookup"
+    }
+  },
+  {
+    "id": "log-05f5c19f1909",
+    "timestamp": "2026-10-07T11:17:57Z",
+    "service": "payment-service",
+    "level": "ERROR",
+    "event_type": "request_failed",
+    "message": "payment request failed after downstream processing delay",
+    "trace_id": "trace-5f2f06404414",
+    "metadata": {
+      "status_code": 504
+    }
+  },
+  {
+    "id": "log-e2d53f935437",
+    "timestamp": "2026-10-07T11:18:07Z",
+    "service": "payment-service",
+    "level": "ERROR",
+    "event_type": "db_query_slow",
+    "message": "payment query exceeded latency threshold",
+    "trace_id": "trace-c66c56099cec",
+    "metadata": {
+      "query_class": "authorization_lookup"
+    }
+  },
+  {
+    "id": "log-a338bc732eff",
+    "timestamp": "2026-10-07T11:19:26Z",
+    "service": "payment-service",
+    "level": "ERROR",
+    "event_type": "request_failed",
+    "message": "payment request failed after downstream processing delay",
+    "trace_id": "trace-04d92666dd54",
+    "metadata": {
+      "status_code": 504
+    }
+  },
+  {
+    "id": "log-57730d3fa6f6",
+    "timestamp": "2026-10-07T11:20:05Z",
+    "service": "payment-service",
+    "level": "ERROR",
+    "event_type": "db_query_slow",
+    "message": "payment query exceeded latency threshold",
+    "trace_id": "trace-7ffa0d036cf2",
+    "metadata": {
+      "query_class": "authorization_lookup"
+    }
+  },
+  {
+    "id": "log-f8acbeda07e7",
+    "timestamp": "2026-10-07T11:21:59Z",
+    "service": "payment-service",
+    "level": "ERROR",
+    "event_type": "request_failed",
+    "message": "payment request failed after downstream processing delay",
+    "trace_id": "trace-303e137be516",
+    "metadata": {
+      "status_code": 504
+    }
+  },
+  {
+    "id": "log-02cffbcff00b",
+    "timestamp": "2026-10-07T11:05:43Z",
+    "service": "payment-service",
+    "level": "WARN",
+    "event_type": "release_regression",
+    "message": "new release shows elevated request processing latency",
+    "trace_id": "trace-2cac14756b97",
+    "metadata": {
+      "version": "v4.19.0"
+    }
+  }
+]

@@ -1,0 +1,15 @@
+{
+  "id": "inc-3b4630b154f3",
+  "scenario_id": "external-dependency",
+  "title": "Payment provider API degradation",
+  "status": "recovered",
+  "severity": "sev2",
+  "started_at": "2026-10-07T11:00:00Z",
+  "detected_at": "2026-10-07T11:04:00Z",
+  "recovered_at": "2026-10-07T11:45:00Z",
+  "affected_services": [
+    "api-gateway",
+    "payment-service"
+  ],
+  "description": "External payment provider latency and timeouts increase, causing retries and application-level degradation."
+}

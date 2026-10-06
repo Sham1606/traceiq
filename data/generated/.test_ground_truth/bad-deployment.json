@@ -1,0 +1,15 @@
+{
+  "scenario_id": "bad-deployment",
+  "root_cause_category": "bad_deployment",
+  "root_cause_service": "payment-service",
+  "primary_evidence_ids": [
+    "met-a09f5b80e88b",
+    "met-1dcd640d8bc1",
+    "met-cff13e37aca4",
+    "met-2f795a2d7e0d",
+    "met-f3fbd5c62419"
+  ],
+  "contradictory_lead": "database_degradation",
+  "expected_recovery_action": "Rollback payment-service to the previous stable version.",
+  "expected_post_recovery_state": "payment-service error rate and latency return close to baseline within recovery window"
+}

@@ -1,0 +1,15 @@
+{
+  "scenario_id": "database-degradation",
+  "root_cause_category": "database_degradation",
+  "root_cause_service": "payments-db",
+  "primary_evidence_ids": [
+    "met-862b775c4089",
+    "met-8fce8732e52d",
+    "met-2869006c48cd",
+    "met-2681b745b944",
+    "met-89ec3efb0057"
+  ],
+  "contradictory_lead": "bad_deployment",
+  "expected_recovery_action": "Fail over or restore the affected database capacity, then drain/retry impacted requests safely.",
+  "expected_post_recovery_state": "payment-service error rate and latency return close to baseline within recovery window"
+}

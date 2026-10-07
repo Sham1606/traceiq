@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from typing import Any, Literal
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 EvidenceStrengthLabel = Literal[
     "strongly_supported",
@@ -34,6 +34,7 @@ class InvestigationPlanStep(BaseModel):
     ]
     reason: str
     priority: int = Field(default=1, ge=1, le=10)
+    evidence_scope: list[str] = Field(default_factory=list)
     dependencies: list[str] = Field(default_factory=list)
     status: Literal["pending", "running", "completed", "skipped", "failed"] = "pending"
 
@@ -62,10 +63,59 @@ class InvestigatorFinding(BaseModel):
     ]
     domain: str
     summary: str
+    title: str = Field(default="")
+    reasoning: str = Field(default="")
+    strength: EvidenceStrengthLabel = Field(default="supported")
+    confidence_label: EvidenceStrengthLabel = Field(default="supported")
     evidence_ids: list[str] = Field(default_factory=list)
+    supporting_evidence_ids: list[str] = Field(default_factory=list)
+    contradicting_evidence_ids: list[str] = Field(default_factory=list)
+    observations: list[str] = Field(default_factory=list)
+    uncertainties: list[str] = Field(default_factory=list)
     anomalies_detected: list[str] = Field(default_factory=list)
-    confidence_label: EvidenceStrengthLabel
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def sync_finding_fields(self) -> InvestigatorFinding:
+        """Keep evidence_ids, title, and strength labels synchronized for backwards compatibility."""
+        if not self.evidence_ids and self.supporting_evidence_ids:
+            self.evidence_ids = list(self.supporting_evidence_ids)
+        elif self.evidence_ids and not self.supporting_evidence_ids:
+            self.supporting_evidence_ids = list(self.evidence_ids)
+
+        if not self.title and self.summary:
+            self.title = self.summary[:80]
+
+        if self.strength != "supported" and self.confidence_label == "supported":
+            self.confidence_label = self.strength
+        elif self.confidence_label != "supported" and self.strength == "supported":
+            self.strength = self.confidence_label
+        return self
+
+
+class CorrelationFinding(BaseModel):
+    """Cross-investigator evidence correlation produced by the deterministic correlation engine.
+
+    Every claim must be backed by validated evidence IDs.  The engine never
+    receives hidden ground truth — it works only from domain-investigator findings.
+    """
+    model_config = ConfigDict(extra="forbid")
+
+    correlation_id: str
+    # Domains that share corroborating evidence signals
+    correlated_domains: list[str] = Field(default_factory=list)
+    # Evidence IDs that appear across multiple domain findings (cross-domain signals)
+    shared_evidence_ids: list[str] = Field(default_factory=list)
+    # Timeline ordering of key events (human-readable labels, not raw data)
+    causal_sequence: list[str] = Field(default_factory=list)
+    # Domains where the temporal evidence clearly does NOT support correlation
+    false_lead_domains: list[str] = Field(default_factory=list)
+    # IDs of evidence that contradict or weaken the leading correlation
+    contradicting_evidence_ids: list[str] = Field(default_factory=list)
+    # Narrative summary produced by the correlation engine
+    summary: str
+    # Combined strength label derived from cross-domain signal density
+    strength: EvidenceStrengthLabel = "supported"
 
 
 class AIHypothesis(BaseModel):

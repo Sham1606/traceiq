@@ -80,13 +80,22 @@ def start_investigation(db: Session, incident_id: str) -> InvestigationResponse 
                     model=ai_provider.model_name,
                 )
                 final_state = ai_graph.run_investigation_graph(state, provider=ai_provider)
+                if final_state.get("plan"):
+                    evidence_dict["plan"] = final_state["plan"]
+                if final_state.get("findings"):
+                    evidence_dict["investigator_findings"] = final_state["findings"]
+
                 if final_state.get("hypotheses"):
                     inv.hypotheses = final_state["hypotheses"]
                     _audit(
                         db,
                         incident_id,
                         "ai_investigation_completed",
-                        {"provider": ai_provider.provider_name, "model": ai_provider.model_name},
+                        {
+                            "provider": ai_provider.provider_name,
+                            "model": ai_provider.model_name,
+                            "finding_count": len(final_state.get("findings", [])),
+                        },
                     )
                 else:
                     hypotheses = generate_hypotheses(bundle)

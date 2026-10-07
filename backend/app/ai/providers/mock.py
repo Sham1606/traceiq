@@ -18,6 +18,7 @@ from .base import (
 from ..schemas import (
     AIHypothesis,
     ChallengeResult,
+    CorrelationFinding,
     InvestigationPlan,
     InvestigationPlanStep,
     InvestigatorFinding,
@@ -40,6 +41,7 @@ class MockAIProvider(AIProvider):
         should_empty: bool = False,
         malformed_output: bool = False,
         canned_responses: dict[type, Any] | None = None,
+        failing_investigators: set[str] | list[str] | None = None,
     ) -> None:
         self._model_name = model_name
         self.should_timeout = should_timeout
@@ -48,6 +50,7 @@ class MockAIProvider(AIProvider):
         self.should_empty = should_empty
         self.malformed_output = malformed_output
         self.canned_responses = canned_responses or {}
+        self.failing_investigators = set(failing_investigators or [])
         self.call_history: list[dict[str, Any]] = []
 
     @property
@@ -70,6 +73,13 @@ class MockAIProvider(AIProvider):
             "prompt": prompt,
             "system_message": system_message,
         })
+
+        # Check selective investigator failure
+        if self.failing_investigators:
+            text = f"{prompt} {system_message or ''}".lower()
+            for inv_name in self.failing_investigators:
+                if inv_name.lower() in text:
+                    raise AITimeoutError(f"Mock provider simulated timeout for {inv_name} investigator.")
 
         if self.should_timeout:
             raise AITimeoutError("Mock provider call timed out after configured duration.")
@@ -137,15 +147,56 @@ class MockAIProvider(AIProvider):
             })
 
         if schema == InvestigatorFinding:
+            # Detect investigator domain from recent call prompt/system message
+            last_call = self.call_history[-1] if self.call_history else {}
+            call_text = f"{last_call.get('prompt', '')} {last_call.get('system_message', '')}".lower()
+
+            inv_type = "application"
+            domain = "application"
+            title = "Mock Application Performance Findings"
+            summary = "Elevated error rate across api-gateway and payment-service"
+            if "database" in call_text:
+                inv_type = "database"
+                domain = "database"
+                title = "Mock Database Telemetry Findings"
+                summary = "Elevated query latency and connection pool saturation"
+            elif "deployment" in call_text:
+                inv_type = "deployment"
+                domain = "deployment"
+                title = "Mock Deployment Correlation Findings"
+                summary = "Production deployment event correlates with degradation onset"
+            elif "dependency" in call_text:
+                inv_type = "dependency"
+                domain = "dependency"
+                title = "Mock External Dependency Findings"
+                summary = "External gateway timeouts and downstream egress delays"
+
             return schema.model_validate({
-                "finding_id": "find-01",
-                "investigator_type": "application",
-                "domain": "telemetry",
-                "summary": "Elevated error rate across api-gateway and payment-service",
+                "finding_id": f"find-{inv_type}-01",
+                "investigator_type": inv_type,
+                "domain": domain,
+                "title": title,
+                "summary": summary,
+                "reasoning": f"Mock {inv_type} evaluation over normalized telemetry window.",
+                "strength": "supported",
+                "confidence_label": "supported",
                 "evidence_ids": [],
-                "anomalies_detected": ["error_rate"],
-                "confidence_label": "strongly_supported",
+                "supporting_evidence_ids": [],
+                "contradicting_evidence_ids": [],
+                "anomalies_detected": [f"{inv_type}_anomaly"],
                 "metadata": {"source": "mock"},
+            })
+
+        if schema == CorrelationFinding:
+            return schema.model_validate({
+                "correlation_id": "corr-mock-01",
+                "correlated_domains": ["deployment", "application"],
+                "shared_evidence_ids": [],
+                "causal_sequence": ["[DEPLOYMENT] Deployment v4.2 released", "[METRIC] Error rate spike"],
+                "false_lead_domains": [],
+                "contradicting_evidence_ids": [],
+                "summary": "Mock correlation: deployment and application findings share temporal alignment.",
+                "strength": "supported",
             })
 
         if schema == ChallengeResult:

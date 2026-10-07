@@ -97,13 +97,17 @@ def test_langgraph_workflow_execution(test_incident_dict, test_evidence_dict):
 
     # Verify hypotheses formulated
     assert len(final_state["hypotheses"]) >= 1
-    assert final_state["hypotheses"][0]["id"] == "hyp-ai-01"
-    assert final_state["hypotheses"][0]["strength"] in {"strongly_supported", "supported"}
+    # Phase 5.3: competing hypotheses use hyp-01, hyp-02, etc. (or hyp-ai-01 for AI path)
+    first_hyp_id = final_state["hypotheses"][0]["id"]
+    assert first_hyp_id.startswith("hyp-"), f"Unexpected hypothesis ID: {first_hyp_id}"
+    assert final_state["hypotheses"][0]["strength"] in {"strongly_supported", "supported", "weakly_supported", "inconclusive"}
 
-    # Verify nodes executed
+    # Verify nodes executed (Phase 5.3 nodes must be present)
     nodes = final_state["metadata"]["nodes_executed"]
     assert "planner" in nodes
     assert "hypotheses" in nodes
+    assert "correlation" in nodes
+    assert "challenge" in nodes
     assert "evaluator" in nodes
     assert final_state["metadata"]["completed_at"] is not None
 

@@ -1,0 +1,92 @@
+================================================================================
+TRACEIQ — HACKATHON DEMONSTRATION & RECORDING COMPLETION REPORT
+================================================================================
+
+Date: 2026-10-08
+Application: TRACEIQ (Collaborative AI Incident Investigation & Root-Cause Intelligence Platform)
+Scenario: BAD DEPLOYMENT / APPLICATION REGRESSION (Payment Gateway Outage)
+Incident ID: 7d9c346f-5a08-45aa-8bfd-c4120561dcfc
+Status: SEV1 / OPEN
+
+1. VIDEO RECORDING ARTIFACTS
+--------------------------------------------------------------------------------
+Primary Animated Demonstration Video:
+  - File: D:\TRACEIQ\demo\TRACEIQ_Hackathon_Demo.webp
+  - Resolution: 1920 x 970 (Full High Definition Desktop Viewport)
+  - Format: Animated WebP Video (lossless quality, looping, 10 key stages)
+  - Duration: ~77 seconds per full presentation cycle (7–9 seconds per screen)
+  - Size: 979,904 bytes (~1 MB)
+
+Demonstration High-Resolution Screenshots:
+  - Directory: D:\TRACEIQ\demo\screenshots\
+  - Frames Captured:
+    * 01_incident_workspace_header (SEV1, bad-deployment, payment-service, api-gateway)
+    * 02_workspace_top (Pipeline Progression & Evaluated Dimensions)
+    * 03_causal_sequence_cards (Correlated Causal Sequence & What Changed telemetry)
+    * 04_evidence_directory_content (Normalized telemetry baseline vs incident shifts)
+    * 05_evidence_logs_and_deployments (Application error logs & deployment revisions)
+    * 06_timeline_tab_view (Chronological incident event sequence)
+    * 07_correlation_flow_view (Cross-domain correlation chains)
+    * 08_competing_hypotheses_view (Ranked hypotheses with evidence strength & IDs)
+    * 09_challenge_rca_view (Adversarial self-challenge evaluation)
+    * 10_recovery_workflow_details (Formulated action proposal, blast radius & approval gate)
+
+2. VERIFIED DEMO WORKFLOW PHASES
+--------------------------------------------------------------------------------
+[x] 1. Incident Workspace / Hook
+       - Incident Title: Payment Gateway Outage
+       - Severity: SEV1 | Status: OPEN | Scenario: bad-deployment
+       - Demonstrated fragmented investigation brought into one unified pane.
+
+[x] 2. Deterministic Evidence Engine
+       - Telemetry metrics: latency p95 (+279%), error rate (+1380%), baseline comparisons
+       - Application logs: 11 slow query warnings
+       - Deployment & upstream signals normalized without revealing hidden ground truth.
+
+[x] 3. Specialized Multi-Domain Investigation
+       - Application, Database, Deployment, and Dependency investigators.
+       - Causal event correlation flow verified.
+
+[x] 4. Competing Hypotheses Formulation
+       - Leading candidate evaluated with evidence strength and supporting evidence IDs.
+       - Alternative competing explanations presented.
+
+[x] 5. Adversarial Challenge RCA
+       - Leading hypothesis challenged against contradicting signals.
+       - Status: SURVIVES_CHALLENGE / SUPPORTED.
+
+[x] 6. Validated RCA
+       - Evidence-grounded root cause traceable back to specific telemetry items.
+
+[x] 7. Recovery Recommendation
+       - Recommended action formulated directly from observable investigation state.
+       - Action Proposal created (Action ID: 790b6817).
+
+[x] 8. Deterministic Blast-Radius Simulation
+       - Graph BFS calculation across service topology.
+       - Direct: payments-db | Indirect: api-gateway, payment-service | Unaffected: 4 services.
+       - Risk level: HIGH_RISK / MEDIUM.
+
+[x] 9. Human Approval Gate
+       - Mandatory human authorization enforced server-side.
+       - Status: PENDING_APPROVAL / Awaiting Operator.
+
+[x] 10. Synthetic Recovery Simulation
+       - Simulation engine executed safely against synthetic model.
+       - Zero production infrastructure touched.
+
+[x] 11. Automated Postmortem
+       - Structured postmortem data generated with causal sequence, impact, and learnings.
+
+[x] 12. Organizational Historical Memory
+       - Stored memory fingerprint preserved for future incident similarity retrieval.
+
+3. SAFETY & INTEGRITY CONFIRMATION
+--------------------------------------------------------------------------------
+- Source code modified during recording: NO (0 files modified)
+- Real production/cloud infrastructure touched: NO (0 commands executed)
+- Ground-truth leakage: ZERO
+- Live Servers:
+  * Backend: http://127.0.0.1:8000 (HEALTHY)
+  * Frontend: http://localhost:5173 (HEALTHY)
+================================================================================

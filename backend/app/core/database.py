@@ -14,6 +14,10 @@ def _make_engine(url: str):
     kwargs = {}
     if url.startswith("sqlite"):
         kwargs["connect_args"] = {"check_same_thread": False}
+    elif url.startswith("postgresql"):
+        kwargs["pool_pre_ping"] = True
+        kwargs["pool_size"] = 10
+        kwargs["max_overflow"] = 20
     return create_engine(url, **kwargs)
 
 
@@ -48,8 +52,9 @@ def db_session() -> Generator[Session, None, None]:
         db.close()
 
 
-def init_db() -> None:
-    """Create all tables. Called once at startup."""
+def init_db(target_engine=None) -> None:
+    """Create all tables. Called once at startup (idempotent)."""
     # Import models so metadata is populated before create_all
     from app.models import orm  # noqa: F401
-    Base.metadata.create_all(bind=engine)
+    eng = target_engine or engine
+    Base.metadata.create_all(bind=eng)

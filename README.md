@@ -14,10 +14,11 @@ TRACEIQ is an incident investigation and recovery platform designed for modern e
 - [Repository Structure](#repository-structure)
 - [Getting Started & Execution](#getting-started--execution)
   - [Prerequisites](#prerequisites)
-  - [1. Telemetry Generation & Validation](#1-telemetry-generation--validation)
-  - [2. Database Initialization & Seeding](#2-database-initialization--seeding)
-  - [3. Running the Backend API](#3-running-the-backend-api)
-  - [4. Running the Frontend Workspace](#4-running-the-frontend-workspace)
+  - [1. Database Setup & Migrations](#1-database-setup--migrations)
+  - [2. Telemetry Generation & Validation](#2-telemetry-generation--validation)
+  - [3. Database Initialization & Seeding](#3-database-initialization--seeding)
+  - [4. Running the Backend API](#4-running-the-backend-api)
+  - [5. Running the Frontend Workspace](#5-running-the-frontend-workspace)
 - [Running Tests & Verifications](#running-tests--verifications)
   - [Backend Tests](#backend-tests)
   - [Frontend Tests & Production Build](#frontend-tests--production-build)
@@ -80,7 +81,7 @@ TRACEIQ strictly enforces deterministic telemetry boundaries:
   - **LangGraph Orchestrator**: Stateful workflow managing `planner` $\rightarrow$ `hypotheses` $\rightarrow$ `evaluator` nodes.
   - **Reference Enforcement**: Rejects any hypothesis that cites invalid or fabricated evidence IDs.
   - **Deterministic Fallback**: Automatically falls back to deterministic rule engines if LLMs are offline, rate-limited, or timing out.
-- **Backend Services (`backend/app/services/`)**: SQLite/SQLAlchemy persistence for incidents, investigations, audit entries, historical memories, and recovery simulations.
+- **Backend Services (`backend/app/services/`)**: PostgreSQL/SQLAlchemy persistence for incidents, investigations, audit entries, historical memories, and recovery simulations.
 - **Frontend Workspace (`frontend/`)**: React 18, Vite, TypeScript, and Tailwind/Vanilla CSS providing an investigation console with causal chains, metric charts, evidence explorer, and interactive recovery gates.
 
 ---
@@ -146,14 +147,16 @@ TRACEIQ includes four realistic, production-plausible synthetic incident scenari
 ```text
 TRACEIQ/
 ├── backend/                  # FastAPI backend service
+│   ├── alembic.ini           # Alembic database migration config
+│   ├── migrations/           # Alembic versioned migration scripts
 │   ├── app/
 │   │   ├── ai/               # AI layer (LangGraph, providers, schemas, state, planner)
 │   │   ├── api/              # REST API routes (/incidents, /investigations, /recovery)
-│   │   ├── core/             # Configuration and database engine
+│   │   ├── core/             # Configuration and PostgreSQL database engine
 │   │   ├── evidence/         # Deterministic telemetry normalization engine
 │   │   ├── models/           # SQLAlchemy ORM and Pydantic schemas
 │   │   └── services/         # Incident, investigation, recovery, audit services
-│   └── tests/                # Pytest suites (unit, integration, AI, scenarios)
+│   └── tests/                # Pytest suites (unit, integration, AI, scenarios against PostgreSQL)
 ├── data/
 │   ├── src/generators/       # Telemetry generators (metrics, logs, traces, configs)
 │   └── generated/            # Generated synthetic telemetry datasets
@@ -166,8 +169,15 @@ TRACEIQ/
 ├── scripts/                  # Data generation, seeding, and audit scripts
 │   ├── generate_data.py      # Generates synthetic incident datasets
 │   ├── validate_data.py      # Validates telemetry schema compliance
-│   ├── seed_demo.py          # Seeds database with demo incidents and memories
-│   └── audit_scenarios.py    # Autonomous E2E API audit script
+│   ├── seed_demo.py          # Seeds PostgreSQL with demo incidents and memories
+│   ├── verify_postgres_e2e.py # End-to-end PostgreSQL verification across 4 scenarios
+│   ├── audit_scenarios.py    # Autonomous E2E API audit script
+│   ├── init_postgres.ps1     # Initializes local PostgreSQL cluster
+│   ├── start_postgres.ps1    # Starts local PostgreSQL server
+│   └── stop_postgres.ps1     # Stops local PostgreSQL server
+├── docker-compose.yml        # PostgreSQL container service definition
+├── alembic.ini               # Root Alembic configuration
+├── .env.example              # Template environment variables
 ├── MASTER.md                 # Project architecture master document
 └── AGENTS.md                 # Rules of engagement for AI agents & contributors
 ```
@@ -177,13 +187,45 @@ TRACEIQ/
 ## Getting Started & Execution
 
 ### Prerequisites
+- **PostgreSQL**: 16 or 17 (or Docker)
 - **Python**: 3.11 or higher
 - **Node.js**: v18 or higher (with npm)
 - **PowerShell** or **Bash**
 
 ---
 
-### 1. Telemetry Generation & Validation
+### 1. Database Setup & Migrations
+
+Configure environment variables:
+```powershell
+# Copy template configuration
+cp .env.example .env
+```
+
+Start PostgreSQL (either via Docker or local script):
+```powershell
+# Option A: Start using Docker Compose
+docker compose up -d
+
+# Option B: Local PostgreSQL (PowerShell scripts)
+powershell scripts/init_postgres.ps1
+powershell scripts/start_postgres.ps1
+```
+
+Run schema migrations via Alembic:
+```powershell
+alembic upgrade head
+```
+
+Verify PostgreSQL connectivity:
+```powershell
+# Direct connection check
+python -c "import psycopg; conn = psycopg.connect('postgresql://traceiq:change_me@localhost:5432/traceiq'); print('PostgreSQL connected:', conn.execute('SELECT version()').fetchone())"
+```
+
+---
+
+### 2. Telemetry Generation & Validation
 Generate the production-plausible scenario datasets and confirm their structural integrity:
 
 ```powershell
@@ -194,8 +236,8 @@ python scripts/validate_data.py
 
 ---
 
-### 2. Database Initialization & Seeding
-Populate the SQLite database (`backend/traceiq.db`) with initial incidents, historical incident memories, and baseline records:
+### 3. Database Initialization & Seeding
+Populate PostgreSQL (`traceiq`) with initial incidents, historical incident memories, and baseline records:
 
 ```powershell
 python scripts/seed_demo.py
@@ -203,7 +245,7 @@ python scripts/seed_demo.py
 
 ---
 
-### 3. Running the Backend API
+### 4. Running the Backend API
 Start the FastAPI backend server using Uvicorn:
 
 ```powershell
@@ -212,6 +254,7 @@ cd backend
 # Set environment paths (PowerShell)
 $env:PYTHONPATH="D:\TRACEIQ\data\src;D:\TRACEIQ\backend"
 $env:DATA_ROOT="D:\TRACEIQ\data\generated"
+$env:DATABASE_URL="postgresql+psycopg://traceiq:change_me@localhost:5432/traceiq"
 
 # Run server
 python -m uvicorn app.main:app --port 8000 --reload
@@ -220,11 +263,11 @@ python -m uvicorn app.main:app --port 8000 --reload
 The backend API will be accessible at:
 - **API Base**: `http://localhost:8000`
 - **Swagger Documentation**: `http://localhost:8000/docs`
-- **Health Check**: `http://localhost:8000/api/v1/health`
+- **Health Check**: `http://localhost:8000/health`
 
 ---
 
-### 4. Running the Frontend Workspace
+### 5. Running the Frontend Workspace
 In a separate terminal, launch the Vite dev server:
 
 ```powershell
@@ -243,10 +286,10 @@ Open your browser at `http://localhost:5173`. The Vite server automatically prox
 
 ## Running Tests & Verifications
 
-TRACEIQ maintains an extensive test suite verifying deterministic calculations, AI schemas, fallback mechanisms, and user interactions.
+TRACEIQ maintains an extensive test suite verifying deterministic calculations, AI schemas, fallback mechanisms, PostgreSQL persistence, and user interactions.
 
 ### Backend Tests
-Run the complete backend test suite (120 passing tests):
+Run the complete backend test suite (245 passing tests against PostgreSQL test database):
 
 ```powershell
 cd backend
@@ -279,13 +322,31 @@ npm run build
 ---
 
 ### End-to-End Verification Audit
-With the backend running on port 8000, execute the end-to-end audit script:
+With the PostgreSQL database and backend running on port 8000, execute the PostgreSQL end-to-end verification script:
 
+```powershell
+python scripts/verify_postgres_e2e.py
+```
+
+This runs a comprehensive 16-step verification across all four incident scenarios (`bad-deployment`, `database-degradation`, `external-dependency`, and `configuration-regression`):
+1. Incident loading & detail retrieval
+2. Investigation execution & status completion
+3. Evidence ingestion & specialized findings
+4. Hypothesis generation & Devil's Advocate adversarial challenge
+5. Recovery action formulation & deterministic blast radius simulation
+6. Mandatory human approval gate enforcement
+7. Duplicate approval rejection with HTTP 409 Conflict
+8. Telemetry execution simulation & outcome recording (`outcome="SUCCESS"`)
+9. Automated postmortem drafting
+10. Historical incident memory archival & observable fingerprint search
+11. Audit trail persistence verification
+12. Ground-truth isolation verification (zero leaks)
+
+You can also run the scenario telemetry audit script:
 ```powershell
 python scripts/audit_scenarios.py
 ```
 
-This autonomously audits all 4 scenarios, verifies metric deltas, tests human approval gates, runs recovery simulations, and checks audit log persistence.
 
 ---
 

@@ -4,12 +4,20 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+# Load local .env if available
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 
 class Settings:
     """Typed settings object. All values read at import time from environment."""
 
-    # Database
+    # Database URLs
     database_url: str
+    test_database_url: str
     # Data root for the evidence engine
     data_root: Path
     # Application
@@ -19,7 +27,10 @@ class Settings:
 
     def __init__(self) -> None:
         self.database_url = os.environ.get(
-            "DATABASE_URL", "sqlite:///./traceiq.db"
+            "DATABASE_URL", "postgresql+psycopg://traceiq:change_me@localhost:5432/traceiq"
+        )
+        self.test_database_url = os.environ.get(
+            "TEST_DATABASE_URL", "postgresql+psycopg://traceiq:change_me@localhost:5432/traceiq_test"
         )
         data_root_env = os.environ.get("DATA_ROOT", "")
         if data_root_env:

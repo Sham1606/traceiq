@@ -551,6 +551,70 @@ def _build_competing_hypotheses(
         if inv_type:
             finding_by_type[inv_type] = f
 
+    def _filter_domain_evidence(
+        inv_type: str,
+        domain_keywords: tuple[str, ...],
+        max_sup: int = 5,
+        max_con: int = 3,
+    ) -> tuple[list[str], list[str]]:
+        """Collect domain-specific supporting and contradicting evidence IDs."""
+        domain_sup: list[str] = []
+        domain_con: list[str] = []
+
+        # 1. Primary: investigator finding for this domain
+        f = finding_by_type.get(inv_type, {})
+        for field in ("supporting_evidence_ids", "evidence_ids"):
+            for eid in f.get(field, []):
+                eid_str = str(eid)
+                if eid_str in valid_ids and eid_str not in domain_sup:
+                    domain_sup.append(eid_str)
+        for eid in f.get("contradicting_evidence_ids", []):
+            eid_str = str(eid)
+            if eid_str in valid_ids and eid_str not in domain_con:
+                domain_con.append(eid_str)
+
+        # 2. Inspect evidence items specifically tagged with or matching domain keywords
+        for e in ev_list:
+            eid_str = str(e.get("id"))
+            if eid_str not in valid_ids:
+                continue
+
+            supports_str = " ".join(str(s) for s in e.get("supports", [])).lower()
+            contra_str = " ".join(str(c) for c in e.get("contradicts", [])).lower()
+            summary_str = str(e.get("summary", "")).lower()
+            source_str = str(e.get("source_id", "")).lower()
+            ev_type = str(e.get("evidence_type", "")).lower()
+            combined = f"{supports_str} {summary_str} {source_str}"
+
+            matches_domain = any(k in combined for k in domain_keywords)
+            if inv_type == "deployment" and ev_type == "timeline" and any(k in combined for k in ("deploy", "release", "config", "version")):
+                matches_domain = True
+
+            if matches_domain:
+                if e.get("strength") in {"strongly_supported", "supported"}:
+                    if eid_str not in domain_sup:
+                        domain_sup.append(eid_str)
+                if e.get("contradicts") and eid_str not in domain_con:
+                    domain_con.append(eid_str)
+            elif any(k in contra_str for k in domain_keywords):
+                if eid_str not in domain_con:
+                    domain_con.append(eid_str)
+
+        # 3. Application-related evidence: include only when it genuinely supports the hypothesis
+        app_finding = finding_by_type.get("application", {})
+        if domain_sup and app_finding.get("strength") in {"strongly_supported", "supported"}:
+            for eid in app_finding.get("supporting_evidence_ids", []):
+                eid_str = str(eid)
+                if eid_str in valid_ids and eid_str not in domain_sup:
+                    for e in ev_list:
+                        if str(e.get("id")) == eid_str and e.get("evidence_type") in {"metric", "log"}:
+                            domain_sup.append(eid_str)
+                            break
+                if len(domain_sup) >= max_sup:
+                    break
+
+        return domain_sup[:max_sup], domain_con[:max_con]
+
     h_idx = 1
 
     def _finding_strength(inv_type: str) -> str:
@@ -560,12 +624,6 @@ def _build_competing_hypotheses(
     # ----- Hypothesis 1: Deployment/Config regression -----
     if has_deployment or has_config:
         dep_strength = _finding_strength("deployment")
-        if dep_strength in ("strongly_supported", "supported"):
-            h_strength = dep_strength
-        elif has_deployment and sup_ids:
-            h_strength = "supported"
-        else:
-            h_strength = "weakly_supported"
 
         if has_deployment:
             title = "Application regression introduced by recent deployment"
@@ -573,26 +631,45 @@ def _build_competing_hypotheses(
                 "A deployment event was logged immediately before the incident window. "
                 "Metric and log telemetry shows degradation aligning with the release timestamp."
             )
+            dep_sup, dep_con = _filter_domain_evidence(
+                "deployment",
+                ("deployment", "deploy", "release", "version"),
+                max_sup=5,
+                max_con=3,
+            )
         else:
             title = "Configuration parameter regression"
             explanation = (
                 "A configuration change was applied during or before the incident window. "
                 "Modified settings may have caused service degradation."
             )
+            dep_sup, dep_con = _filter_domain_evidence(
+                "deployment",
+                ("configuration", "config", "parameter", "setting"),
+                max_sup=5,
+                max_con=3,
+            )
+
+        if dep_strength in ("strongly_supported", "supported"):
+            h_strength = dep_strength
+        elif has_deployment and dep_sup:
+            h_strength = "supported"
+        else:
+            h_strength = "weakly_supported"
 
         h = AIHypothesis(
             id=f"hyp-{h_idx:02d}",
             title=title,
             explanation=explanation,
-            supporting_evidence_ids=sup_ids[:5],
-            contradicting_evidence_ids=con_ids[:3],
+            supporting_evidence_ids=dep_sup,
+            contradicting_evidence_ids=dep_con,
             missing_evidence=[
                 "Deployment diff / rollback validation",
                 "Canary vs stable error rate comparison",
             ],
             reasoning_summary=(
                 f"Deployment investigator strength: {dep_strength}. "
-                f"{len(sup_ids)} supporting evidence IDs, {len(con_ids)} contradicting IDs. "
+                f"{len(dep_sup)} supporting evidence IDs, {len(dep_con)} contradicting IDs. "
                 "Temporal correlation with change event."
             ),
             strength=h_strength,  # type: ignore[arg-type]
@@ -604,9 +681,16 @@ def _build_competing_hypotheses(
     # ----- Hypothesis 2: Database degradation -----
     if db_anomalies or "database" in finding_by_type:
         db_strength = _finding_strength("database")
+        db_sup, db_con = _filter_domain_evidence(
+            "database",
+            ("database", "db", "postgres", "connection", "query", "pool", "sql", "deadlock"),
+            max_sup=5,
+            max_con=3,
+        )
+
         if db_strength in ("strongly_supported", "supported"):
             h_strength_db = db_strength
-        elif db_anomalies:
+        elif db_anomalies and db_sup:
             h_strength_db = "supported"
         else:
             h_strength_db = "weakly_supported"
@@ -618,8 +702,8 @@ def _build_competing_hypotheses(
                 f"Database telemetry shows {len(db_anomalies)} metric anomaly(ies). "
                 "Connection pool saturation or slow queries may be cascading to dependent services."
             ),
-            supporting_evidence_ids=sup_ids[:4],
-            contradicting_evidence_ids=con_ids[:2],
+            supporting_evidence_ids=db_sup,
+            contradicting_evidence_ids=db_con,
             missing_evidence=[
                 "Database slow query log",
                 "Connection pool peak utilisation chart",
@@ -637,9 +721,16 @@ def _build_competing_hypotheses(
     # ----- Hypothesis 3: External dependency failure -----
     if has_dependency or dep_anomalies:
         dep_strength = _finding_strength("dependency")
+        dep_ext_sup, dep_ext_con = _filter_domain_evidence(
+            "dependency",
+            ("dependency", "gateway", "504", "external", "third_party", "third-party", "egress", "timeout", "stripe"),
+            max_sup=5,
+            max_con=3,
+        )
+
         if dep_strength in ("strongly_supported", "supported"):
             h_strength_dep = dep_strength
-        elif dep_anomalies:
+        elif dep_anomalies and dep_ext_sup:
             h_strength_dep = "supported"
         else:
             h_strength_dep = "weakly_supported"
@@ -651,8 +742,8 @@ def _build_competing_hypotheses(
                 f"Third-party service degradation events in timeline. "
                 f"{len(dep_anomalies)} egress/gateway timeout metric anomalies observed."
             ),
-            supporting_evidence_ids=sup_ids[:3],
-            contradicting_evidence_ids=con_ids[:2],
+            supporting_evidence_ids=dep_ext_sup,
+            contradicting_evidence_ids=dep_ext_con,
             missing_evidence=[
                 "Third-party provider status page",
                 "Circuit breaker trip logs",

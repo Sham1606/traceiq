@@ -69,6 +69,8 @@ class InvestigationRow(Base):
     hypotheses_json: Mapped[str | None] = mapped_column(Text, nullable=True)
     # Challenge result stored as JSON text
     challenge_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Postmortem draft stored as JSON text
+    postmortem_json: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=_now)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=_now)
 
@@ -101,6 +103,14 @@ class InvestigationRow(Base):
     def challenge(self, value: dict | None) -> None:
         self.challenge_json = json.dumps(value) if value is not None else None
 
+    @property
+    def postmortem(self) -> dict | None:
+        return json.loads(self.postmortem_json) if self.postmortem_json else None
+
+    @postmortem.setter
+    def postmortem(self, value: dict | None) -> None:
+        self.postmortem_json = json.dumps(value) if value is not None else None
+
 
 # ---------------------------------------------------------------------------
 # Recovery Actions
@@ -120,9 +130,19 @@ class RecoveryActionRow(Base):
     approved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     simulated_result: Mapped[str] = mapped_column(Text, nullable=False, default="not_run")
     outcome: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Detail JSON holds Phase 5.4 fields: action_type, blast_radius, risk_level, execution_simulation, etc.
+    detail_json: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=_now)
 
     investigation: Mapped["InvestigationRow"] = relationship(back_populates="recovery_actions")
+
+    @property
+    def detail(self) -> dict | None:
+        return json.loads(self.detail_json) if self.detail_json else None
+
+    @detail.setter
+    def detail(self, value: dict | None) -> None:
+        self.detail_json = json.dumps(value) if value is not None else None
 
 
 # ---------------------------------------------------------------------------

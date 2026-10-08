@@ -130,6 +130,7 @@ class AIHypothesis(BaseModel):
     missing_evidence: list[str] = Field(default_factory=list)
     reasoning_summary: str
     strength: EvidenceStrengthLabel
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class ChallengeResult(BaseModel):
@@ -144,22 +145,117 @@ class ChallengeResult(BaseModel):
     challenger_agent: str = "ChallengeAgent"
 
 
+import uuid
+
+RecoveryActionType = Literal[
+    "ROLLBACK_DEPLOYMENT",
+    "RESTORE_CONFIGURATION",
+    "REDUCE_DATABASE_PRESSURE",
+    "FAILOVER",
+    "DISABLE_DEPENDENCY",
+    "ENABLE_FALLBACK",
+    "SCALE_SERVICE",
+    "NO_ACTION",
+    "INVESTIGATE_FURTHER",
+]
+
+SimulationStatus = Literal[
+    "SAFE",
+    "SAFE_WITH_WARNINGS",
+    "HIGH_RISK",
+    "BLOCKED",
+    "INCONCLUSIVE",
+]
+
+ExecutionOutcome = Literal[
+    "SUCCESS",
+    "PARTIAL_SUCCESS",
+    "FAILED",
+    "BLOCKED",
+]
+
+
 class RecoveryRecommendation(BaseModel):
     """Recommended recovery action formulated from verified root cause."""
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="ignore")
 
-    action: str
-    target: str
-    rationale: str
-    expected_impact: str
+    action: str = ""
+    target: str = ""
+    rationale: str = ""
+    expected_impact: str = ""
     requires_human_approval: bool = True
     risk_level: Literal["low", "medium", "high"] = "medium"
     supporting_evidence_ids: list[str] = Field(default_factory=list)
 
+    # Phase 5.4 fields
+    recommendation_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    hypothesis_id: str = ""
+    action_type: RecoveryActionType = "INVESTIGATE_FURTHER"
+    action_description: str = ""
+    target_service: str = ""
+    target_component: str = ""
+    expected_effect: str = ""
+    prerequisites: list[str] = Field(default_factory=list)
+    estimated_blast_radius: str | dict[str, Any] | None = None
+    rollback_plan: str = ""
+    simulation_status: str = "not_run"
+    approval_status: str = "pending"
+
+    @model_validator(mode="after")
+    def _sync_fields(self) -> "RecoveryRecommendation":
+        if not self.action_description and self.action:
+            self.action_description = self.action
+        elif not self.action and self.action_description:
+            self.action = self.action_description
+
+        if not self.target_service and self.target:
+            self.target_service = self.target
+        elif not self.target and self.target_service:
+            self.target = self.target_service
+
+        if not self.expected_effect and self.expected_impact:
+            self.expected_effect = self.expected_impact
+        elif not self.expected_impact and self.expected_effect:
+            self.expected_impact = self.expected_effect
+        return self
+
+
+class BlastRadiusSimulation(BaseModel):
+    """Deterministic blast-radius evaluation."""
+    model_config = ConfigDict(extra="ignore")
+
+    simulation_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    recommendation_id: str
+    status: SimulationStatus = "SAFE"
+    target_service: str
+    directly_affected: list[str] = Field(default_factory=list)
+    indirectly_affected: list[str] = Field(default_factory=list)
+    unaffected_components: list[str] = Field(default_factory=list)
+    dependency_impacts: list[str] = Field(default_factory=list)
+    risk_level: Literal["low", "medium", "high"] = "medium"
+    predicted_outcome: str = ""
+    rollback_possible: bool = True
+    warnings: list[str] = Field(default_factory=list)
+    validation_errors: list[str] = Field(default_factory=list)
+
+
+class RecoveryExecutionSimulation(BaseModel):
+    """Deterministic execution simulation result."""
+    model_config = ConfigDict(extra="ignore")
+
+    execution_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    recommendation_id: str
+    status: ExecutionOutcome = "SUCCESS"
+    simulated_action: str
+    telemetry_changes: dict[str, Any] = Field(default_factory=dict)
+    remaining_symptoms: list[str] = Field(default_factory=list)
+    notes: str = ""
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
 
 class PostmortemDraft(BaseModel):
     """Structured postmortem generated following investigation and recovery."""
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="ignore")
 
     title: str
     summary: str
@@ -169,6 +265,21 @@ class PostmortemDraft(BaseModel):
     remediation_summary: str
     action_items: list[str] = Field(default_factory=list)
     evidence_references: list[str] = Field(default_factory=list)
+
+    # Phase 5.4 fields
+    incident_id: str | None = None
+    severity: str | None = None
+    timeline: list[dict[str, Any]] = Field(default_factory=list)
+    detected_symptoms: list[str] = Field(default_factory=list)
+    investigation_summary: str | None = None
+    root_cause_hypothesis_id: str | None = None
+    contributing_factors: list[str] = Field(default_factory=list)
+    rejected_hypotheses: list[str] = Field(default_factory=list)
+    recovery_action_taken: str | None = None
+    recovery_outcome: str | None = None
+    remaining_risks: list[str] = Field(default_factory=list)
+    lessons_learned: list[str] = Field(default_factory=list)
+    prevention_recommendations: list[str] = Field(default_factory=list)
 
 
 class AIExecutionError(BaseModel):

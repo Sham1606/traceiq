@@ -9,6 +9,8 @@ import {
   MemorySearchResponse,
   IncidentMemoryResponse,
   HealthResponse,
+  BlastRadiusSimulation,
+  PostmortemDraft,
 } from '../types/api';
 
 const API_BASE = import.meta.env.VITE_API_URL || '';
@@ -95,6 +97,11 @@ export const api = {
       body: JSON.stringify(payload),
     }),
 
+  recommendRecoveryActions: (investigationId: string): Promise<RecoveryActionResponse[]> =>
+    request<RecoveryActionResponse[]>(`/api/v1/investigations/${encodeURIComponent(investigationId)}/recommend-recovery`, {
+      method: 'POST',
+    }),
+
   approveRecoveryAction: (actionId: string, payload: ApprovalRequest): Promise<RecoveryActionResponse> =>
     request<RecoveryActionResponse>(`/api/v1/recovery-actions/${encodeURIComponent(actionId)}/approve`, {
       method: 'POST',
@@ -106,6 +113,16 @@ export const api = {
       method: 'POST',
     }),
 
+  simulateBlastRadius: (actionId: string): Promise<BlastRadiusSimulation> =>
+    request<BlastRadiusSimulation>(`/api/v1/recovery-actions/${encodeURIComponent(actionId)}/blast-radius`, {
+      method: 'POST',
+    }),
+
+  executeRecoverySimulation: (actionId: string): Promise<RecoveryActionResponse> =>
+    request<RecoveryActionResponse>(`/api/v1/recovery-actions/${encodeURIComponent(actionId)}/execute`, {
+      method: 'POST',
+    }),
+
   recordRecoveryOutcome: (actionId: string, outcome: string): Promise<RecoveryActionResponse> =>
     request<RecoveryActionResponse>(
       `/api/v1/recovery-actions/${encodeURIComponent(actionId)}/outcome?outcome=${encodeURIComponent(outcome)}`,
@@ -113,6 +130,22 @@ export const api = {
         method: 'POST',
       }
     ),
+
+  // Postmortem
+  createPostmortem: (investigationId: string, customNotes?: string): Promise<PostmortemDraft> =>
+    request<PostmortemDraft>(`/api/v1/investigations/${encodeURIComponent(investigationId)}/postmortem`, {
+      method: 'POST',
+      body: JSON.stringify({ custom_notes: customNotes }),
+    }),
+
+  getPostmortem: (investigationId: string): Promise<PostmortemDraft> =>
+    request<PostmortemDraft>(`/api/v1/investigations/${encodeURIComponent(investigationId)}/postmortem`),
+
+  // Incident Memory Archival
+  archiveMemory: (investigationId: string): Promise<IncidentMemoryResponse> =>
+    request<IncidentMemoryResponse>(`/api/v1/investigations/${encodeURIComponent(investigationId)}/archive-memory`, {
+      method: 'POST',
+    }),
 
   // Audit
   getAuditLog: (incidentId: string): Promise<AuditEntryResponse[]> =>

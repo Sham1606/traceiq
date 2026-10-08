@@ -113,12 +113,64 @@ export interface InvestigationResponse {
   evidence: EvidenceBundle | null;
   hypotheses: HypothesisItem[] | null;
   challenge: Record<string, unknown> | null;
+  postmortem?: PostmortemDraft | null;
   created_at: string;
   updated_at: string;
 }
 
 export type ApprovalStatus = 'pending' | 'approved' | 'rejected' | string;
 export type SimulatedResult = 'not_run' | 'safe' | 'unsafe' | 'partial' | string;
+
+export interface BlastRadiusSimulation {
+  simulation_id: string;
+  recommendation_id: string;
+  status: 'SAFE' | 'SAFE_WITH_WARNINGS' | 'HIGH_RISK' | 'BLOCKED' | 'INCONCLUSIVE' | string;
+  target_service: string;
+  directly_affected: string[];
+  indirectly_affected: string[];
+  unaffected_components: string[];
+  dependency_impacts: string[];
+  risk_level: 'low' | 'medium' | 'high' | string;
+  predicted_outcome: string;
+  rollback_possible: boolean;
+  warnings: string[];
+  validation_errors: string[];
+}
+
+export interface RecoveryExecutionSimulation {
+  execution_id: string;
+  recommendation_id: string;
+  status: 'SUCCESS' | 'PARTIAL_SUCCESS' | 'FAILED' | 'BLOCKED' | string;
+  simulated_action: string;
+  telemetry_changes: Record<string, unknown>;
+  remaining_symptoms: string[];
+  notes: string;
+  timestamp: string;
+}
+
+export interface PostmortemDraft {
+  title: string;
+  summary: string;
+  impact_duration_minutes?: number | null;
+  root_cause_analysis: string;
+  causal_sequence: string[];
+  remediation_summary: string;
+  action_items: string[];
+  evidence_references: string[];
+  incident_id?: string | null;
+  severity?: string | null;
+  timeline?: Array<{ timestamp: string; type: string; event: string }>;
+  detected_symptoms?: string[];
+  investigation_summary?: string | null;
+  root_cause_hypothesis_id?: string | null;
+  contributing_factors?: string[];
+  rejected_hypotheses?: string[];
+  recovery_action_taken?: string | null;
+  recovery_outcome?: string | null;
+  remaining_risks?: string[];
+  lessons_learned?: string[];
+  prevention_recommendations?: string[];
+}
 
 export interface RecoveryActionResponse {
   id: string;
@@ -133,6 +185,12 @@ export interface RecoveryActionResponse {
   simulated_result: SimulatedResult;
   outcome: string | null;
   created_at: string;
+  risk_level?: 'low' | 'medium' | 'high' | string;
+  action_type?: string;
+  supporting_evidence_ids?: string[];
+  blast_radius?: BlastRadiusSimulation | null;
+  execution_simulation?: RecoveryExecutionSimulation | null;
+  detail?: Record<string, unknown> | null;
 }
 
 export interface RecoveryActionCreate {

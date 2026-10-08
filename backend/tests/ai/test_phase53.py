@@ -801,3 +801,150 @@ def test_phase53_pipeline_executes_for_scenario(scenario_id: str):
     assert len(hallucinated) == 0, (
         f"[{scenario_id}] {len(hallucinated)} hallucinated evidence IDs detected: {hallucinated}"
     )
+
+
+# =========================================================================== #
+# 7. Targeted Fix Verification Tests (Phase 5.3 fixes)                         #
+# =========================================================================== #
+
+class TestPhase53TargetedFixes:
+    def test_challenge_and_correlation_persistence(self, db):
+        """Fix 1: start_investigation must persist challenge and correlations."""
+        from datetime import datetime, timezone
+        from app.models.orm import IncidentRow
+        from app.services.investigation.service import start_investigation
+        from app.ai.config import AISettings
+        import app.ai.config as ai_config
+
+        ai_config.ai_settings = AISettings(enabled=True, provider="mock", model="mock-reasoner")
+
+        inc = IncidentRow(
+            id="inc-fix-persist-01",
+            scenario_id="bad-deployment",
+            title="Deployment Regression Test",
+            severity="sev1",
+            started_at=datetime(2026, 10, 8, 10, 0, tzinfo=timezone.utc),
+            detected_at=datetime(2026, 10, 8, 10, 5, tzinfo=timezone.utc),
+            recovered_at=datetime(2026, 10, 8, 10, 30, tzinfo=timezone.utc),
+            affected_services=["api-gateway", "payment-service"],
+        )
+        db.add(inc)
+        db.commit()
+
+        resp = start_investigation(db, "inc-fix-persist-01")
+        assert resp is not None
+        assert resp.status == "complete"
+
+        # 1. Challenge result must NOT be null
+        assert resp.challenge is not None, "InvestigationResponse.challenge must not be None"
+        assert resp.challenge["status"] in {"supported", "rejected", "inconclusive"}
+        assert resp.challenge["challenger_agent"] == "ChallengeAgent"
+        assert "challenge_rationale" in resp.challenge
+
+        # 2. Correlations must be present in evidence dict
+        assert resp.evidence is not None
+        assert "correlations" in resp.evidence, "evidence['correlations'] must be present"
+        assert any("correlation_id" in c for c in resp.evidence["correlations"]), (
+            "evidence['correlations'] must contain Phase 5.3 CorrelationFinding"
+        )
+
+    def test_database_hypothesis_evidence_isolation(self):
+        """Fix 2: Database hypothesis must only receive database-relevant evidence."""
+        from pathlib import Path
+        from app.core.config import settings
+        from app.evidence.engine import EvidenceEngine
+        from app.evidence.loader import load_scenario
+        from app.ai.state import create_initial_state
+        from app.ai.graph import run_investigation_graph
+
+        engine = EvidenceEngine(settings.data_root)
+        scenario_id = "database-degradation"
+        bundle = engine.investigate(scenario_id)
+        incident = load_scenario(Path(settings.data_root), scenario_id).incident
+
+        state = create_initial_state(incident, bundle)
+        final_state = run_investigation_graph(state, provider=MockAIProvider())
+
+        hypotheses = final_state.get("hypotheses", [])
+        assert len(hypotheses) >= 1
+        db_hyp = next((h for h in hypotheses if "database" in h["title"].lower() or "connection" in h["title"].lower()), None)
+        assert db_hyp is not None, "Database hypothesis must be generated"
+
+        # Verify supporting evidence IDs are database-specific
+        sup_ids = db_hyp.get("supporting_evidence_ids", [])
+        assert len(sup_ids) >= 1, "Database hypothesis must have supporting evidence"
+        for eid in sup_ids:
+            eid_lower = eid.lower()
+            # Must not be a deployment release event
+            assert "dep-" not in eid_lower and "release" not in eid_lower, (
+                f"Database hypothesis contaminated with deployment evidence: {eid}"
+            )
+            # Must be grounded in database or corroborating application error telemetry
+            assert any(k in eid_lower for k in ("db", "payment", "conn", "query", "metric", "log", "latency")), (
+                f"Unexpected evidence ID in database hypothesis: {eid}"
+            )
+
+    def test_deployment_hypothesis_evidence_isolation(self, base_incident, deployment_evidence):
+        """Fix 2: Deployment hypothesis must only receive deployment-relevant evidence."""
+        state = create_initial_state(base_incident, deployment_evidence)
+        final_state = run_investigation_graph(state, provider=MockAIProvider())
+
+        hypotheses = final_state.get("hypotheses", [])
+        dep_hyp = next((h for h in hypotheses if "deployment" in h["title"].lower()), None)
+        assert dep_hyp is not None, "Deployment hypothesis must be generated"
+
+        sup_ids = dep_hyp.get("supporting_evidence_ids", [])
+        assert "ev-tl-deploy" in sup_ids, "Deployment hypothesis must contain deployment timeline ID"
+
+    def test_historical_memory_integration_and_safety(self, db):
+        """Fix 3: Historical memory is queried, enriches metadata, but never overrides strength or IDs."""
+        from datetime import datetime, timezone
+        from app.models.orm import IncidentRow, IncidentMemoryRow
+        from app.services.investigation.service import start_investigation
+        from app.ai.config import AISettings
+        import app.ai.config as ai_config
+
+        ai_config.ai_settings = AISettings(enabled=True, provider="mock", model="mock-reasoner")
+
+        # Seed historical memory
+        mem = IncidentMemoryRow(
+            id="mem-past-53-test",
+            fingerprint="sev1 api_gateway payment_service deployment",
+            title="Past payment outage",
+            root_cause_category="deployment_regression",
+            recovery_action="Rollback deployment",
+            recovery_outcome="resolved",
+            scenario_id="bad-deployment",
+            incident_id="inc-old-53",
+            created_at=datetime.now(timezone.utc),
+        )
+        db.add(mem)
+
+        inc = IncidentRow(
+            id="inc-fix-mem-01",
+            scenario_id="bad-deployment",
+            title="Current payment outage",
+            severity="sev1",
+            started_at=datetime(2026, 10, 8, 10, 0, tzinfo=timezone.utc),
+            detected_at=datetime(2026, 10, 8, 10, 5, tzinfo=timezone.utc),
+            recovered_at=datetime(2026, 10, 8, 10, 30, tzinfo=timezone.utc),
+            affected_services=["api-gateway", "payment-service"],
+        )
+        db.add(inc)
+        db.commit()
+
+        resp = start_investigation(db, "inc-fix-mem-01")
+        assert resp is not None
+        assert resp.status == "complete"
+        assert resp.hypotheses is not None
+        h = resp.hypotheses[0]
+
+        meta = h.get("metadata", {})
+        # 1. Historical metadata enriched
+        assert meta.get("historical_match_count", 0) >= 1
+        assert "historical_context_note" in meta
+        # 2. Historical override is strictly False
+        assert meta.get("historical_override") is False
+        # 3. Memory ID is NOT leaked into evidence IDs
+        assert "mem-past-53-test" not in h.get("supporting_evidence_ids", [])
+

@@ -44,6 +44,11 @@ from .schemas import (
     InvestigatorFinding,
     PostmortemDraft,
     RecoveryRecommendation,
+    BlastRadiusSimulation,
+    RecoveryExecutionSimulation,
+    RecoveryActionType,
+    SimulationStatus,
+    ExecutionOutcome,
 )
 from .state import (
     IncidentContext,
@@ -92,6 +97,11 @@ __all__ = [
     "ChallengeResult",
     "CorrelationFinding",
     "RecoveryRecommendation",
+    "BlastRadiusSimulation",
+    "RecoveryExecutionSimulation",
+    "RecoveryActionType",
+    "SimulationStatus",
+    "ExecutionOutcome",
     "PostmortemDraft",
     "AIExecutionError",
     "InvestigationMetadata",

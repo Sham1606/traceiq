@@ -83,6 +83,7 @@ def create_initial_state(
     evidence_bundle: Any,
     provider: str = "mock",
     model: str = "mock-reasoner",
+    historical_context: list[dict[str, Any]] | None = None,
 ) -> InvestigationState:
     """Construct a clean, sanitized initial investigation state for LangGraph.
 
@@ -133,7 +134,7 @@ def create_initial_state(
         correlations=clean_evidence.get("correlation_findings", []),
         hypotheses=[],
         challenge=None,
-        historical_context=[],
+        historical_context=list(historical_context or []),
         recovery=None,
         postmortem=None,
         errors=[],

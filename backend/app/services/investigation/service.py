@@ -26,6 +26,7 @@ def _row_to_response(row: InvestigationRow) -> InvestigationResponse:
         evidence=row.evidence,
         hypotheses=row.hypotheses,
         challenge=row.challenge,
+        postmortem=row.postmortem,
         created_at=row.created_at,
         updated_at=row.updated_at,
     )
@@ -73,17 +74,43 @@ def start_investigation(db: Session, incident_id: str) -> InvestigationResponse 
         if ai_config.ai_settings.enabled:
             try:
                 ai_provider = ai_providers.get_ai_provider(ai_config.ai_settings)
+
+                # Query historical memory using observable fingerprint
+                historical_matches: list[dict] = []
+                try:
+                    from app.ai.historical import build_fingerprint_from_evidence
+                    from app.services.investigation.memory import search_memory
+
+                    inc_context = {
+                        "id": incident_row.id,
+                        "severity": incident_row.severity,
+                        "affected_services": incident_row.affected_services,
+                    }
+                    fingerprint = build_fingerprint_from_evidence(evidence_dict, inc_context)
+                    mem_response = search_memory(db, fingerprint, limit=3)
+                    if mem_response and mem_response.matches:
+                        historical_matches = [
+                            m.model_dump(mode="json") for m in mem_response.matches
+                        ]
+                except Exception:
+                    historical_matches = []
+
                 state = ai_state.create_initial_state(
                     incident_row,
                     bundle,
                     provider=ai_provider.provider_name,
                     model=ai_provider.model_name,
+                    historical_context=historical_matches,
                 )
                 final_state = ai_graph.run_investigation_graph(state, provider=ai_provider)
                 if final_state.get("plan"):
                     evidence_dict["plan"] = final_state["plan"]
                 if final_state.get("findings"):
                     evidence_dict["investigator_findings"] = final_state["findings"]
+                if final_state.get("correlations"):
+                    evidence_dict["correlations"] = final_state["correlations"]
+                if final_state.get("challenge"):
+                    inv.challenge = final_state["challenge"]
 
                 if final_state.get("hypotheses"):
                     inv.hypotheses = final_state["hypotheses"]
@@ -115,6 +142,7 @@ def start_investigation(db: Session, incident_id: str) -> InvestigationResponse 
         inv.status = "failed"
         inv.evidence = None
         inv.hypotheses = None
+        inv.challenge = None
         _audit(db, incident_id, "investigation_failed", {"error": str(exc)})
     finally:
         inv.updated_at = datetime.now(timezone.utc)

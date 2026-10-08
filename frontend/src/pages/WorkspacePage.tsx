@@ -456,7 +456,9 @@ export function WorkspacePage() {
 
         {activeTab === 'audit' && <AuditSection incidentId={incident.id} />}
 
-        {activeTab === 'postmortem' && <PostmortemSection />}
+        {activeTab === 'postmortem' && (
+          <PostmortemSection investigationId={investigation?.id || null} />
+        )}
       </div>
     </div>
   );

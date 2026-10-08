@@ -71,6 +71,7 @@ class InvestigationResponse(BaseModel):
     evidence: dict | None = None
     hypotheses: list[dict] | None = None
     challenge: dict | None = None
+    postmortem: dict | None = None
     created_at: datetime
     updated_at: datetime
 
@@ -121,6 +122,13 @@ class RecoveryActionResponse(BaseModel):
     simulated_result: str
     outcome: str | None
     created_at: datetime
+    # Phase 5.4 fields
+    risk_level: str = "medium"
+    action_type: str | None = None
+    supporting_evidence_ids: list[str] = Field(default_factory=list)
+    blast_radius: dict | None = None
+    execution_simulation: dict | None = None
+    detail: dict | None = None
 
 
 class SimulationResult(BaseModel):
@@ -128,6 +136,36 @@ class SimulationResult(BaseModel):
     recovery_action_id: str
     simulated_result: Literal["safe", "unsafe", "partial"]
     notes: str
+
+
+class PostmortemCreateRequest(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    custom_notes: str | None = None
+
+
+class PostmortemResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    title: str
+    summary: str
+    impact_duration_minutes: float | None = None
+    root_cause_analysis: str
+    causal_sequence: list[str] = Field(default_factory=list)
+    remediation_summary: str
+    action_items: list[str] = Field(default_factory=list)
+    evidence_references: list[str] = Field(default_factory=list)
+    incident_id: str | None = None
+    severity: str | None = None
+    timeline: list[dict] = Field(default_factory=list)
+    detected_symptoms: list[str] = Field(default_factory=list)
+    investigation_summary: str | None = None
+    root_cause_hypothesis_id: str | None = None
+    contributing_factors: list[str] = Field(default_factory=list)
+    rejected_hypotheses: list[str] = Field(default_factory=list)
+    recovery_action_taken: str | None = None
+    recovery_outcome: str | None = None
+    remaining_risks: list[str] = Field(default_factory=list)
+    lessons_learned: list[str] = Field(default_factory=list)
+    prevention_recommendations: list[str] = Field(default_factory=list)
 
 
 # ---------------------------------------------------------------------------

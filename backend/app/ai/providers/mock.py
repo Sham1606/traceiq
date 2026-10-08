@@ -24,6 +24,8 @@ from ..schemas import (
     InvestigatorFinding,
     PostmortemDraft,
     RecoveryRecommendation,
+    BlastRadiusSimulation,
+    RecoveryExecutionSimulation,
 )
 
 T = TypeVar("T", bound=BaseModel)
@@ -211,13 +213,52 @@ class MockAIProvider(AIProvider):
 
         if schema == RecoveryRecommendation:
             return schema.model_validate({
+                "recommendation_id": "rec-mock-01",
+                "hypothesis_id": "hyp-01",
+                "action_type": "ROLLBACK_DEPLOYMENT",
                 "action": "Rollback deployment release v4.2",
+                "action_description": "Rollback deployment release v4.2",
                 "target": "payment-service",
+                "target_service": "payment-service",
+                "target_component": "payment-service",
                 "rationale": "Deployment regression is strongly supported by telemetry deltas.",
                 "expected_impact": "Error rate restoration to baseline <0.01%",
+                "expected_effect": "Error rate restoration to baseline <0.01%",
                 "requires_human_approval": True,
                 "risk_level": "medium",
                 "supporting_evidence_ids": [],
+                "prerequisites": ["Deployment artifact v4.1 available"],
+                "rollback_plan": "Redeploy v4.2 if regression unrelated",
+                "simulation_status": "SAFE",
+                "approval_status": "pending",
+            })
+
+        if schema == BlastRadiusSimulation:
+            return schema.model_validate({
+                "simulation_id": "sim-mock-01",
+                "recommendation_id": "rec-mock-01",
+                "status": "SAFE",
+                "target_service": "payment-service",
+                "directly_affected": ["payment-service"],
+                "indirectly_affected": ["api-gateway", "payments-db", "payment-provider-api"],
+                "unaffected_components": ["order-service", "orders-db", "redis-cache"],
+                "dependency_impacts": ["Upstream callers may observe brief retry bursts"],
+                "risk_level": "medium",
+                "predicted_outcome": "Rollback completes safely with telemetry normalization",
+                "rollback_possible": True,
+                "warnings": [],
+                "validation_errors": [],
+            })
+
+        if schema == RecoveryExecutionSimulation:
+            return schema.model_validate({
+                "execution_id": "exec-mock-01",
+                "recommendation_id": "rec-mock-01",
+                "status": "SUCCESS",
+                "simulated_action": "Rollback deployment release v4.2",
+                "telemetry_changes": {"error_rate": "0.01% (baseline restored)"},
+                "remaining_symptoms": [],
+                "notes": "Simulated rollback executed successfully",
             })
 
         if schema == PostmortemDraft:

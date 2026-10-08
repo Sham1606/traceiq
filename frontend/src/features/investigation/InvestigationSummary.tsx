@@ -2,6 +2,7 @@ import React from 'react';
 import {
   ShieldAlert,
   ArrowRight,
+  ArrowDown,
   TrendingUp,
   AlertTriangle,
   GitCommit,
@@ -56,6 +57,9 @@ export function InvestigationSummary({
   const metricAnomalies = evidence.metric_findings.filter((m) => m.anomaly);
   const timelineEvents = evidence.timeline_findings;
   const correlationChains = evidence.correlation_findings;
+  const formatMetric = (value: number) => new Intl.NumberFormat('en-US', {
+    maximumSignificantDigits: 4,
+  }).format(value);
 
   // Dynamically synthesize "What Changed?" signals from actual evidence
   const changesSummary: string[] = [];
@@ -81,7 +85,7 @@ export function InvestigationSummary({
         ? `${m.delta_ratio > 0 ? '+' : ''}${(m.delta_ratio * 100).toFixed(0)}%`
         : `${m.delta > 0 ? '+' : ''}${m.delta.toFixed(2)}`;
     changesSummary.push(
-      `${m.service} ${m.metric} anomaly: shifted from baseline ${m.baseline_mean.toFixed(2)} to ${m.incident_mean.toFixed(2)} (${deltaStr})`
+      `${m.service} ${m.metric} anomaly: shifted from baseline ${formatMetric(m.baseline_mean)} to ${formatMetric(m.incident_mean)} (${deltaStr})`
     );
   });
 
@@ -92,69 +96,18 @@ export function InvestigationSummary({
     );
   }
 
-  // Dynamically build Causal Chain Nodes from correlation, timeline, or metric findings
-  const causalNodes = (() => {
-    // 1. Identify Trigger
-    let triggerLabel = 'TRIGGER EVENT';
-    let triggerDetail = incident.scenario_id.toUpperCase();
-    if (deployments.length > 0) {
-      triggerLabel = 'DEPLOYMENT';
-      triggerDetail = deployments[0].summary;
-    } else if (configs.length > 0) {
-      triggerLabel = 'CONFIGURATION';
-      triggerDetail = configs[0].summary;
-    } else if (dependencies.length > 0) {
-      triggerLabel = 'DEPENDENCY';
-      triggerDetail = dependencies[0].summary;
-    } else if (correlationChains.length > 0) {
-      triggerLabel = correlationChains[0].category.toUpperCase();
-      triggerDetail = correlationChains[0].summary;
-    }
-
-    const nodes = [
-      {
-        stage: '1. TRIGGER EVENT',
-        label: triggerLabel,
-        detail: triggerDetail,
-        color: 'border-cyan-700/70 bg-cyan-950/40 text-cyan-300',
-      },
-    ];
-
-    // 2. Telemetry Anomaly
-    if (metricAnomalies.length > 0) {
-      const topMetric = metricAnomalies[0];
-      const deltaStr =
-        topMetric.delta_ratio !== null
-          ? `${topMetric.delta_ratio > 0 ? '+' : ''}${(topMetric.delta_ratio * 100).toFixed(0)}%`
-          : `${topMetric.delta > 0 ? '+' : ''}${topMetric.delta.toFixed(2)}`;
-      nodes.push({
-        stage: '2. TELEMETRY SHIFT',
-        label: `${topMetric.service} ${topMetric.metric}`,
-        detail: `${deltaStr} (${topMetric.baseline_mean.toFixed(2)} → ${topMetric.incident_mean.toFixed(2)})`,
-        color: 'border-amber-700/70 bg-amber-950/40 text-amber-300',
-      });
-    }
-
-    // 3. Log Pattern / System Conflict (if present)
-    if (highLogs.length > 0) {
-      nodes.push({
-        stage: '3. LOG ANOMALY',
-        label: `${highLogs[0].event_type}`,
-        detail: `${highLogs[0].error_or_warn_count} errors in ${highLogs[0].service}`,
-        color: 'border-purple-700/70 bg-purple-950/40 text-purple-300',
-      });
-    }
-
-    // 4. Observed System Degradation
-    nodes.push({
-      stage: `${nodes.length + 1}. OBSERVED SYMPTOM`,
-      label: 'Service Degradation',
-      detail: incident.affected_services.join(', ') || 'Impacted Service',
-      color: 'border-rose-700/70 bg-rose-950/40 text-rose-300',
-    });
-
-    return nodes;
-  })();
+  const causalSequences = (evidence.correlations || []).filter(
+    (correlation) => (correlation.causal_sequence?.length || 0) > 0
+  );
+  const causalStepCount = causalSequences.reduce(
+    (count, correlation) => count + (correlation.causal_sequence?.length || 0),
+    0
+  );
+  const challengeStatus = typeof investigation.challenge?.status === 'string'
+    ? investigation.challenge.status.toUpperCase()
+    : investigation.challenge
+      ? 'COMPLETED'
+      : 'NOT RUN';
 
   return (
     <div className="bg-slate-900/90 rounded-lg border border-slate-800 shadow-xl overflow-hidden">
@@ -270,7 +223,9 @@ export function InvestigationSummary({
                   <Bot className="w-3.5 h-3.5 text-amber-400" />
                   <span>Adversarial Challenge RCA</span>
                 </span>
-                <span className="text-amber-400 font-semibold">PENDING (PHASE 5)</span>
+                <span className={`font-semibold ${investigation.challenge ? 'text-emerald-400' : 'text-slate-400'}`}>
+                  {challengeStatus}
+                </span>
               </div>
 
               <div className="flex items-center justify-between p-2 rounded bg-slate-900/60 border border-slate-800/80">
@@ -308,48 +263,46 @@ export function InvestigationSummary({
           </div>
         </div>
 
-        {/* Dynamic Causal Chain Diagram */}
-        <div className="bg-slate-950/70 rounded-lg border border-slate-800 p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-1.5">
-              <Layers className="w-3.5 h-3.5 text-indigo-400" />
-              <span>Correlated Causal Sequence</span>
+        <section aria-label="Summary causal sequences" className="space-y-4 rounded-lg border border-slate-800 bg-slate-950/80 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-2">
+            <span className="flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider text-slate-300">
+              <Layers className="h-3.5 w-3.5 text-indigo-400" />
+              Correlated causal sequences ({causalStepCount} returned steps)
             </span>
-            <span className="text-[11px] font-mono text-slate-500">
-              Deterministic Temporal Flow
-            </span>
+            <span className="text-[11px] font-mono text-slate-400">Backend correlation results</span>
           </div>
 
-          <div className="flex flex-col md:flex-row items-center justify-between gap-3">
-            {causalNodes.map((node, idx) => (
-              <React.Fragment key={idx}>
-                <div className={`w-full md:flex-1 p-3 rounded-lg border ${node.color} text-center space-y-1`}>
-                  <div className="text-[9px] uppercase font-mono font-bold tracking-wider opacity-75">
-                    {node.stage}
-                  </div>
-                  <div className="text-xs font-bold text-slate-100 font-mono">
-                    {node.label}
-                  </div>
-                  <div className="text-[11px] text-slate-400 truncate">
-                    {node.detail}
-                  </div>
-                </div>
-
-                {idx < causalNodes.length - 1 && (
-                  <div className="flex items-center space-x-1 text-slate-600 px-1 shrink-0">
-                    <span className="text-[10px] font-mono text-slate-500 uppercase hidden sm:inline">
-                      correlated
-                    </span>
-                    <ArrowRight className="w-4 h-4 text-indigo-400 shrink-0" />
+          {causalSequences.length === 0 ? (
+            <p className="text-xs text-slate-500">No causal sequence was returned; no steps are inferred.</p>
+          ) : (
+            causalSequences.map((correlation) => (
+              <div key={correlation.correlation_id} className="min-w-0 space-y-3">
+                <p className="break-words text-xs leading-relaxed text-slate-400">{correlation.summary}</p>
+                <ol className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
+                  {(correlation.causal_sequence || []).map((step, index) => (
+                    <li key={`${index}-${step}`} className="min-w-0 rounded border border-slate-800 bg-slate-900/70 p-3">
+                      <span className="text-[10px] font-mono font-bold text-indigo-300">
+                        STEP {String(index + 1).padStart(2, '0')}
+                      </span>
+                      <p className="mt-1 break-words text-xs leading-relaxed text-slate-200">{step}</p>
+                    </li>
+                  ))}
+                </ol>
+                {!!correlation.shared_evidence_ids?.length && (
+                  <div className="flex flex-wrap items-center gap-1.5 text-[10px] font-mono">
+                    <span className="text-slate-500">Evidence:</span>
+                    {(correlation.shared_evidence_ids || []).map((id) => (
+                      <span key={id} className="rounded border border-indigo-900/60 bg-slate-900 px-1.5 py-0.5 text-indigo-300">{id}</span>
+                    ))}
                   </div>
                 )}
-              </React.Fragment>
-            ))}
-          </div>
+              </div>
+            ))
+          )}
 
           {onNavigateTab && (
-            <div className="pt-2 flex items-center justify-between border-t border-slate-800/60 text-[11px] font-mono">
-              <span className="text-slate-500">Cross-signal causal propagation synthesized from telemetry</span>
+            <div className="flex items-center justify-between border-t border-slate-800/60 pt-2 text-[11px] font-mono">
+              <span className="text-slate-500">Sequence steps are shown as returned by the backend.</span>
               <button
                 onClick={() => onNavigateTab('correlation')}
                 className="inline-flex items-center space-x-1 text-indigo-400 hover:text-indigo-300 transition"
@@ -359,7 +312,7 @@ export function InvestigationSummary({
               </button>
             </div>
           )}
-        </div>
+        </section>
 
         {/* "What Changed?" Dynamic Telemetry Summary */}
         <div className="bg-slate-950/70 rounded-lg border border-slate-800 p-4 space-y-3">

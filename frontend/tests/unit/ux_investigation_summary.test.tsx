@@ -5,7 +5,7 @@ import { ChallengeSection } from '../../src/features/rca/ChallengeSection';
 import { HistoricalMemorySection } from '../../src/features/investigation/HistoricalMemorySection';
 import { RecoverySection } from '../../src/features/recovery/RecoverySection';
 import { api } from '../../src/services/api';
-import { IncidentResponse, InvestigationResponse } from '../../src/types/api';
+import { ChallengeResult, IncidentResponse, InvestigationResponse } from '../../src/types/api';
 
 const mockIncident: IncidentResponse = {
   id: 'inc-001',
@@ -76,6 +76,21 @@ const mockInvestigation: InvestigationResponse = {
         contradicts: [],
       },
     ],
+    correlations: [
+      {
+        correlation_id: 'ai-corr-1',
+        correlated_domains: ['deployment'],
+        shared_evidence_ids: ['ev-1'],
+        causal_sequence: [
+          '[DEPLOYMENT] Production deployment release v4.2 applied at 14:26:00Z',
+          '[METRIC] Payment service error rate increased at 14:30:00Z',
+        ],
+        false_lead_domains: [],
+        contradicting_evidence_ids: [],
+        summary: 'Deployment preceded an observed payment service metric shift.',
+        strength: 'supported',
+      },
+    ],
     evidence: [
       {
         id: 'ev-1',
@@ -128,15 +143,17 @@ describe('Phase 4.5 Investigation UX & Information Hierarchy', () => {
     expect(screen.getByText('STRONGLY SUPPORTED')).toBeInTheDocument();
 
     // Causal chain
-    expect(screen.getByText(/Correlated Causal Sequence/i)).toBeInTheDocument();
-    expect(screen.getByText('DEPLOYMENT')).toBeInTheDocument();
+    expect(screen.getByText(/Correlated causal sequences \(2 returned steps\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/\[DEPLOYMENT\] Production deployment release v4\.2 applied/)).toBeInTheDocument();
+    expect(screen.getByText(/Payment service error rate increased at 14:30:00Z/)).toBeInTheDocument();
+    expect(screen.queryByText(/SYSTEM IMPACT|SVC-01/)).not.toBeInTheDocument();
 
     // What Changed summary
     expect(screen.getByText(/What Changed\? \(Observed Telemetry Shifts\)/i)).toBeInTheDocument();
     expect(screen.getByText(/Production deployment logged in timeline/i)).toBeInTheDocument();
   });
 
-  it('verifies Challenge RCA displays honest pending state without fake AI claims', () => {
+  it('shows that no challenge result was returned when challenge is absent', () => {
     render(
       <ChallengeSection
         challenge={null}
@@ -145,9 +162,31 @@ describe('Phase 4.5 Investigation UX & Information Hierarchy', () => {
     );
 
     expect(screen.getByText(/Adversarial Challenge RCA Protocol/i)).toBeInTheDocument();
-    expect(screen.getByText(/STATUS: PENDING — PHASE 5 AI LAYER/i)).toBeInTheDocument();
-    expect(screen.getByText(/challenge: null/i)).toBeInTheDocument();
-    expect(screen.getByText(/Attempt to disprove the leading hypothesis/i)).toBeInTheDocument();
+    expect(screen.getByText(/STATUS: NOT RUN/i)).toBeInTheDocument();
+    expect(screen.getByText(/No challenge result was returned/i)).toBeInTheDocument();
+    expect(screen.queryByText(/PHASE 5|challenge: null/i)).not.toBeInTheDocument();
+  });
+
+  it('renders the actual challenge verdict, rationale, and evidence references', () => {
+    const challenge: ChallengeResult = {
+      hypothesis_id: 'hyp-01',
+      status: 'supported',
+      challenge_rationale: 'The hypothesis survived challenge with independent evidence.',
+      contradicting_evidence_ids: [],
+      independent_evidence_ids: ['ev-1'],
+      challenger_agent: 'ChallengeAgent',
+    };
+
+    render(
+      <ChallengeSection
+        challenge={challenge}
+        leadingHypothesis={mockInvestigation.hypotheses![0]}
+      />
+    );
+
+    expect(screen.getByText('STATUS: SUPPORTED')).toBeInTheDocument();
+    expect(screen.getByText(/survived challenge with independent evidence/i)).toBeInTheDocument();
+    expect(screen.getByText('ev-1')).toBeInTheDocument();
   });
 
   it('verifies Historical Memory prominent disclaimer is displayed', async () => {
@@ -177,6 +216,8 @@ describe('Phase 4.5 Investigation UX & Information Hierarchy', () => {
     expect(
       screen.getByText(/TRACEIQ never performs autonomous remediation/i)
     ).toBeInTheDocument();
+    expect(screen.getByText('DETERMINISTIC: PROPOSES RECOVERY')).toBeInTheDocument();
+    expect(screen.queryByText('AI: PROPOSES RECOVERY')).not.toBeInTheDocument();
     expect(await screen.findByText(/No Recovery Actions Formulated Yet/i)).toBeInTheDocument();
   });
 });

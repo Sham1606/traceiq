@@ -254,7 +254,7 @@ cd backend
 # Set environment paths (PowerShell)
 $env:PYTHONPATH="D:\TRACEIQ\data\src;D:\TRACEIQ\backend"
 $env:DATA_ROOT="D:\TRACEIQ\data\generated"
-$env:DATABASE_URL="postgresql+psycopg://traceiq:change_me@localhost:5432/traceiq"
+$env:DATABASE_URL="postgresql+psycopg://traceiq:traceiq@127.0.0.1:5432/traceiq"
 
 # Run server
 python -m uvicorn app.main:app --port 8000 --reload

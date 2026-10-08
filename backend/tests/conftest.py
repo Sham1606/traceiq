@@ -21,7 +21,7 @@ os.environ.setdefault("DATA_ROOT", str(DATA_ROOT))
 # Use dedicated PostgreSQL test database
 TEST_DB_URL = os.environ.get(
     "TEST_DATABASE_URL",
-    os.environ.get("DATABASE_URL", "postgresql+psycopg://traceiq:change_me@localhost:5432/traceiq_test"),
+    os.environ.get("DATABASE_URL", "postgresql+psycopg://traceiq:traceiq@127.0.0.1:5432/traceiq_test"),
 )
 os.environ["DATABASE_URL"] = TEST_DB_URL
 

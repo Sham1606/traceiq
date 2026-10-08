@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 
 from app.models.orm import IncidentRow
-from app.schemas.api import IncidentCreate, IncidentResponse
+from app.schemas.api import IncidentCreate, IncidentResponse, LiveIncidentCreate
 
 
 def _row_to_response(row: IncidentRow) -> IncidentResponse:
@@ -23,6 +23,7 @@ def _row_to_response(row: IncidentRow) -> IncidentResponse:
         affected_services=row.affected_services,
         description=row.description,
         created_at=row.created_at,
+        custom_evidence=row.custom_evidence,
     )
 
 
@@ -42,6 +43,35 @@ def create_incident(db: Session, payload: IncidentCreate) -> IncidentResponse:
         created_at=datetime.now(timezone.utc),
     )
     row.affected_services = payload.affected_services
+    if payload.custom_evidence:
+        row.custom_evidence = payload.custom_evidence
+    db.add(row)
+    db.commit()
+    db.refresh(row)
+    return _row_to_response(row)
+
+
+def create_live_incident(db: Session, payload: LiveIncidentCreate) -> IncidentResponse:
+    """Create a new custom incident from Live Incident Lab with supplied evidence."""
+    now = datetime.now(timezone.utc)
+    started = payload.started_at or now
+    detected = payload.detected_at or now
+    recovered = payload.recovered_at or now
+
+    row = IncidentRow(
+        id=str(uuid.uuid4()),
+        scenario_id="LIVE_CUSTOM",
+        title=payload.title,
+        status="open",
+        severity=payload.severity,
+        started_at=started,
+        detected_at=detected,
+        recovered_at=recovered,
+        description=payload.description,
+        created_at=now,
+    )
+    row.affected_services = payload.affected_services
+    row.custom_evidence = payload.evidence_items
     db.add(row)
     db.commit()
     db.refresh(row)

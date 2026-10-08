@@ -8,6 +8,7 @@ import {
   Layers,
   CheckCircle2,
   AlertTriangle,
+  Sparkles,
 } from 'lucide-react';
 import { api } from '../../services/api';
 import { HealthResponse } from '../../types/api';
@@ -72,6 +73,20 @@ export function AppShell() {
                 <div className="flex items-center space-x-1.5">
                   <Layers className="w-3.5 h-3.5" />
                   <span>Incidents</span>
+                </div>
+              </Link>
+
+              <Link
+                to="/lab"
+                className={`px-3 py-1.5 rounded text-xs font-medium transition ${
+                  location.pathname === '/lab'
+                    ? 'bg-indigo-950/80 text-indigo-300 border border-indigo-700/80'
+                    : 'text-indigo-400 hover:text-indigo-200 hover:bg-indigo-950/30'
+                }`}
+              >
+                <div className="flex items-center space-x-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                  <span className="font-semibold">Live Incident Lab</span>
                 </div>
               </Link>
 

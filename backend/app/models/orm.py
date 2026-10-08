@@ -35,6 +35,7 @@ class IncidentRow(Base):
     recovered_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False, default="")
     affected_services_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    custom_evidence_json: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=_now)
 
     investigations: Mapped[list["InvestigationRow"]] = relationship(
@@ -51,6 +52,14 @@ class IncidentRow(Base):
     @affected_services.setter
     def affected_services(self, value: list[str]) -> None:
         self.affected_services_json = json.dumps(value)
+
+    @property
+    def custom_evidence(self) -> list[dict] | None:
+        return json.loads(self.custom_evidence_json) if self.custom_evidence_json else None
+
+    @custom_evidence.setter
+    def custom_evidence(self, value: list[dict] | None) -> None:
+        self.custom_evidence_json = json.dumps(value) if value is not None else None
 
 
 # ---------------------------------------------------------------------------

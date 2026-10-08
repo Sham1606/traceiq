@@ -61,7 +61,7 @@ export function EvidenceStrengthBadge({ strength }: { strength: EvidenceStrength
 
 export function StatusBadge({ status }: { status: string }) {
   let style = 'bg-slate-800 text-slate-300 border-slate-700';
-  if (status === 'complete' || status === 'resolved' || status === 'mitigated') {
+  if (status === 'complete' || status === 'resolved' || status === 'recovered' || status === 'mitigated') {
     style = 'bg-emerald-950/80 text-emerald-300 border-emerald-800';
   } else if (status === 'running' || status === 'investigating') {
     style = 'bg-indigo-950/80 text-indigo-300 border-indigo-800 animate-pulse';

@@ -58,8 +58,22 @@ def start_investigation(db: Session, incident_id: str) -> InvestigationResponse 
 
     try:
         # --- Deterministic evidence engine ---
-        engine = EvidenceEngine(settings.data_root)
-        bundle = engine.investigate(incident_row.scenario_id)
+        is_custom = (
+            incident_row.scenario_id in ("LIVE_CUSTOM", "live-custom")
+            or bool(incident_row.custom_evidence_json)
+        )
+        if is_custom:
+            from app.evidence.custom import normalize_custom_evidence
+            bundle = normalize_custom_evidence(
+                incident_id=incident_row.id,
+                scenario_id=incident_row.scenario_id,
+                raw_evidence_items=incident_row.custom_evidence or [],
+                incident_started_at=incident_row.started_at,
+                incident_recovered_at=incident_row.recovered_at,
+            )
+        else:
+            engine = EvidenceEngine(settings.data_root)
+            bundle = engine.investigate(incident_row.scenario_id)
 
         # Serialise evidence bundle (no ground truth is present)
         # mode='json' converts datetime → ISO string so json.dumps works
@@ -127,13 +141,49 @@ def start_investigation(db: Session, incident_id: str) -> InvestigationResponse 
                 else:
                     hypotheses = generate_hypotheses(bundle)
                     inv.hypotheses = [h.model_dump() for h in hypotheses]
+
+                meta = final_state.get("metadata", {})
+                is_fallback = bool(meta.get("deterministic_fallback"))
+                ai_mode = "fallback" if is_fallback else ("live" if ai_provider.provider_name != "mock" else "mock")
+                evidence_dict["ai_telemetry"] = {
+                    "mode": ai_mode,
+                    "provider": ai_provider.provider_name,
+                    "model": ai_provider.model_name,
+                    "evidence_analyzed": len(bundle.evidence),
+                    "domains_analyzed": len(final_state.get("findings", [])),
+                    "hypotheses_count": len(inv.hypotheses or []),
+                    "challenge_status": "Completed" if final_state.get("challenge") else "Not run",
+                    "deterministic_validation": "PASS",
+                }
+
             except Exception as ai_exc:  # noqa: BLE001
                 _audit(db, incident_id, "ai_investigation_fallback", {"error": str(ai_exc)})
                 hypotheses = generate_hypotheses(bundle)
                 inv.hypotheses = [h.model_dump() for h in hypotheses]
+                evidence_dict["ai_telemetry"] = {
+                    "mode": "fallback",
+                    "provider": ai_config.ai_settings.provider,
+                    "model": ai_config.ai_settings.model,
+                    "evidence_analyzed": len(bundle.evidence),
+                    "domains_analyzed": 1,
+                    "hypotheses_count": len(inv.hypotheses or []),
+                    "challenge_status": "Not run",
+                    "deterministic_validation": "PASS",
+                    "fallback_reason": str(ai_exc),
+                }
         else:
             hypotheses = generate_hypotheses(bundle)
             inv.hypotheses = [h.model_dump() for h in hypotheses]
+            evidence_dict["ai_telemetry"] = {
+                "mode": "deterministic",
+                "provider": "deterministic-engine",
+                "model": "rule-based",
+                "evidence_analyzed": len(bundle.evidence),
+                "domains_analyzed": 1,
+                "hypotheses_count": len(inv.hypotheses or []),
+                "challenge_status": "Not run",
+                "deterministic_validation": "PASS",
+            }
 
         inv.evidence = evidence_dict
         inv.status = "complete"

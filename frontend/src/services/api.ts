@@ -75,6 +75,21 @@ export const api = {
   getIncident: (incidentId: string): Promise<IncidentResponse> =>
     request<IncidentResponse>(`/api/v1/incidents/${encodeURIComponent(incidentId)}`),
 
+  createLiveIncident: (payload: {
+    title: string;
+    severity: string;
+    affected_services: string[];
+    description: string;
+    detected_at?: string;
+    started_at?: string;
+    recovered_at?: string;
+    evidence_items: any[];
+  }): Promise<IncidentResponse> =>
+    request<IncidentResponse>('/api/v1/incidents/live', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
   // Investigations
   startInvestigation: (incidentId: string): Promise<InvestigationResponse> =>
     request<InvestigationResponse>(`/api/v1/incidents/${encodeURIComponent(incidentId)}/investigations`, {

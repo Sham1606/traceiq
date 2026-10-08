@@ -4,9 +4,11 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-# Load local .env if available
+# Load local .env if available (check backend/.env and repo root .env)
 try:
     from dotenv import load_dotenv
+    _repo_root = Path(__file__).resolve().parents[3]
+    load_dotenv(_repo_root / ".env")
     load_dotenv()
 except ImportError:
     pass
@@ -27,10 +29,10 @@ class Settings:
 
     def __init__(self) -> None:
         self.database_url = os.environ.get(
-            "DATABASE_URL", "postgresql+psycopg://traceiq:change_me@localhost:5432/traceiq"
+            "DATABASE_URL", "postgresql+psycopg://traceiq:traceiq@127.0.0.1:5432/traceiq"
         )
         self.test_database_url = os.environ.get(
-            "TEST_DATABASE_URL", "postgresql+psycopg://traceiq:change_me@localhost:5432/traceiq_test"
+            "TEST_DATABASE_URL", "postgresql+psycopg://traceiq:traceiq@127.0.0.1:5432/traceiq_test"
         )
         data_root_env = os.environ.get("DATA_ROOT", "")
         if data_root_env:

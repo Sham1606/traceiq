@@ -4,6 +4,7 @@ import { AppShell } from './components/layout/AppShell';
 import { IncidentsPage } from './pages/IncidentsPage';
 import { WorkspacePage } from './pages/WorkspacePage';
 import { MemoryPage } from './pages/MemoryPage';
+import { LiveIncidentLabPage } from './pages/LiveIncidentLabPage';
 
 export function App() {
   return (
@@ -13,6 +14,7 @@ export function App() {
           <Route path="/" element={<Navigate to="/incidents" replace />} />
           <Route path="/incidents" element={<IncidentsPage />} />
           <Route path="/incidents/:incidentId" element={<WorkspacePage />} />
+          <Route path="/lab" element={<LiveIncidentLabPage />} />
           <Route path="/memory" element={<MemoryPage />} />
           <Route path="*" element={<Navigate to="/incidents" replace />} />
         </Route>

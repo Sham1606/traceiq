@@ -5,8 +5,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.schemas.api import IncidentCreate, IncidentList, IncidentResponse
-from app.services.incident import create_incident, get_incident, list_incidents
+from app.schemas.api import IncidentCreate, IncidentList, IncidentResponse, LiveIncidentCreate
+from app.services.incident import create_incident, create_live_incident, get_incident, list_incidents
 
 router = APIRouter(prefix="/incidents", tags=["incidents"])
 
@@ -15,6 +15,14 @@ router = APIRouter(prefix="/incidents", tags=["incidents"])
 def create(payload: IncidentCreate, db: Session = Depends(get_db)):
     try:
         return create_incident(db, payload)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@router.post("/live", response_model=IncidentResponse, status_code=201)
+def create_live(payload: LiveIncidentCreate, db: Session = Depends(get_db)):
+    try:
+        return create_live_incident(db, payload)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 

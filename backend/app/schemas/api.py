@@ -6,7 +6,7 @@ They are separate from the ORM models and from the data-layer schemas in traceiq
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -36,6 +36,20 @@ class IncidentCreate(BaseModel):
     recovered_at: datetime
     affected_services: list[str] = Field(default_factory=list)
     description: str = Field(default="", max_length=2000)
+    custom_evidence: list[dict] | None = Field(default=None)
+
+
+class LiveIncidentCreate(BaseModel):
+    """Payload for creating a custom incident in the Live Incident Lab."""
+    model_config = ConfigDict(extra="ignore")
+    title: str = Field(..., min_length=1, max_length=255)
+    severity: Literal["sev1", "sev2", "sev3", "sev4"] = "sev1"
+    affected_services: list[str] = Field(default_factory=list)
+    description: str = Field(default="", max_length=2000)
+    detected_at: datetime | None = None
+    started_at: datetime | None = None
+    recovered_at: datetime | None = None
+    evidence_items: list[Any] = Field(default_factory=list)
 
 
 class IncidentResponse(BaseModel):
@@ -51,6 +65,7 @@ class IncidentResponse(BaseModel):
     affected_services: list[str]
     description: str
     created_at: datetime
+    custom_evidence: list[dict] | None = None
 
 
 class IncidentList(BaseModel):

@@ -13,11 +13,8 @@ import {
   History,
   ScrollText,
   FileSpreadsheet,
-  CheckCircle2,
   RefreshCw,
   ArrowLeft,
-  Check,
-  AlertCircle,
 } from 'lucide-react';
 import { api } from '../services/api';
 import { IncidentResponse, InvestigationResponse, HypothesisItem } from '../types/api';
@@ -25,6 +22,8 @@ import { SeverityBadge, StatusBadge } from '../components/common/Badge';
 import { LoadingSpinner, ErrorMessage } from '../components/common/Feedback';
 
 import { InvestigationSummary } from '../features/investigation/InvestigationSummary';
+import { AIStatusPanel } from '../features/investigation/AIStatusPanel';
+import { InvestigationProgress } from '../features/investigation/InvestigationProgress';
 import { EvidenceSection } from '../features/evidence/EvidenceSection';
 import { TimelineSection } from '../features/findings/TimelineSection';
 import { CorrelationSection } from '../features/findings/CorrelationSection';
@@ -57,6 +56,16 @@ export function WorkspacePage() {
   const [loadingIncident, setLoadingIncident] = useState(true);
   const [runningInvestigation, setRunningInvestigation] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [investigationStartedAt, setInvestigationStartedAt] = useState<number | null>(null);
+  const [elapsedSeconds, setElapsedSeconds] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!runningInvestigation || investigationStartedAt === null) return;
+    const timer = window.setInterval(() => {
+      setElapsedSeconds(Math.floor((Date.now() - investigationStartedAt) / 1000));
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [runningInvestigation, investigationStartedAt]);
 
   // Load Incident details
   const fetchIncident = useCallback(async () => {
@@ -94,11 +103,15 @@ export function WorkspacePage() {
     fetchInvestigations();
   }, [fetchIncident, fetchInvestigations]);
 
-  // Trigger new investigation
+  // Backend stages are not streamed; track only the actual request duration.
   const handleStartInvestigation = async () => {
     if (!incidentId) return;
+    const startedAt = Date.now();
     setRunningInvestigation(true);
+    setInvestigationStartedAt(startedAt);
+    setElapsedSeconds(0);
     setError(null);
+
     try {
       const newInv = await api.startInvestigation(incidentId);
       setInvestigation(newInv);
@@ -106,6 +119,8 @@ export function WorkspacePage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Investigation failed to execute');
     } finally {
+      setElapsedSeconds(Math.floor((Date.now() - startedAt) / 1000));
+      setInvestigationStartedAt(null);
       setRunningInvestigation(false);
     }
   };
@@ -279,9 +294,9 @@ export function WorkspacePage() {
               },
               {
                 label: 'Challenge RCA',
-                done: false,
-                pending: true,
-                detail: 'Pending Phase 5 AI',
+                done: !!investigation?.challenge,
+                pending: !investigation?.challenge,
+                detail: investigation?.challenge ? 'Falsification Verified' : 'Adversarial Evaluation',
               },
               {
                 label: 'Recovery Decision',
@@ -315,26 +330,26 @@ export function WorkspacePage() {
             ))}
           </div>
 
-          {/* Secondary Investigation Dimensions */}
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] font-mono text-slate-400 pt-1">
-            <span className="text-slate-500 uppercase text-[10px]">Evaluated Telemetry Dimensions:</span>
-            <span className="inline-flex items-center space-x-1 text-slate-300">
-              <Check className="w-3 h-3 text-emerald-400" /> <span>Application Logs</span>
-            </span>
-            <span className="inline-flex items-center space-x-1 text-slate-300">
-              <Check className="w-3 h-3 text-emerald-400" /> <span>Database Telemetry</span>
-            </span>
-            <span className="inline-flex items-center space-x-1 text-slate-300">
-              <Check className="w-3 h-3 text-emerald-400" /> <span>Deployment Revisions</span>
-            </span>
-            <span className="inline-flex items-center space-x-1 text-slate-300">
-              <Check className="w-3 h-3 text-emerald-400" /> <span>External Dependencies</span>
-            </span>
-          </div>
         </div>
       </div>
 
       {error && <ErrorMessage message={error} />}
+
+      {(runningInvestigation || investigation) && (
+        <InvestigationProgress
+          investigation={runningInvestigation ? null : investigation}
+          running={runningInvestigation}
+          elapsedSeconds={elapsedSeconds}
+        />
+      )}
+
+      {/* AI Investigation Engine Status & Transparency Panel */}
+      {investigation && (
+        <AIStatusPanel
+          investigation={investigation}
+          leadingHypothesis={leadingHypothesis}
+        />
+      )}
 
       {/* Top-Level Investigation Summary (Executive View) */}
       <InvestigationSummary
@@ -426,7 +441,10 @@ export function WorkspacePage() {
         )}
 
         {activeTab === 'correlation' && (
-          <CorrelationSection correlations={investigation?.evidence?.correlation_findings || null} />
+          <CorrelationSection
+            correlations={investigation?.evidence?.correlation_findings || null}
+            aiCorrelations={investigation?.evidence?.correlations || null}
+          />
         )}
 
         {activeTab === 'hypotheses' && (

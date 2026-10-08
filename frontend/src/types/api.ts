@@ -75,15 +75,60 @@ export interface CorrelationFinding {
   contradicts: string[];
 }
 
+export interface InvestigationCorrelation {
+  id?: string;
+  correlation_id?: string;
+  category?: string;
+  source_ids?: string[];
+  services?: string[];
+  correlated_domains?: string[];
+  shared_evidence_ids?: string[];
+  causal_sequence?: string[];
+  false_lead_domains?: string[];
+  contradicting_evidence_ids?: string[];
+  supports?: string[];
+  contradicts?: string[];
+  summary: string;
+  strength?: EvidenceStrength;
+}
+
+export interface InvestigatorFinding {
+  finding_id: string;
+  investigator_type: string;
+  domain: string;
+  summary: string;
+  evidence_ids: string[];
+}
+
+export interface InvestigationPlan {
+  investigation_id: string;
+  status: string;
+  steps: Array<{ step_id: string; investigator_type: string; status: string }>;
+}
+
+export interface AIInvestigationTelemetry {
+  mode?: string;
+  provider?: string;
+  model?: string;
+  evidence_analyzed?: number;
+  domains_analyzed?: number;
+  hypotheses_count?: number;
+  challenge_status?: string;
+  deterministic_validation?: string;
+  fallback_reason?: string;
+}
+
 export interface EvidenceItem {
   id: string;
-  incident_id: string;
-  evidence_type: 'metric' | 'log' | 'timeline' | string;
+  incident_id?: string;
+  evidence_type?: 'metric' | 'log' | 'timeline' | string;
+  category?: string;
+  service?: string;
   source_id: string;
   summary: string;
   strength: EvidenceStrength;
-  supports: string[];
-  contradicts: string[];
+  supports?: string[];
+  contradicts?: string[];
 }
 
 export interface EvidenceBundle {
@@ -93,6 +138,10 @@ export interface EvidenceBundle {
   timeline_findings: TimelineFinding[];
   log_findings: LogFinding[];
   correlation_findings: CorrelationFinding[];
+  correlations?: InvestigationCorrelation[];
+  investigator_findings?: InvestigatorFinding[];
+  plan?: InvestigationPlan;
+  ai_telemetry?: AIInvestigationTelemetry;
   evidence: EvidenceItem[];
 }
 
@@ -106,13 +155,22 @@ export interface HypothesisItem {
   strength: EvidenceStrength;
 }
 
+export interface ChallengeResult {
+  hypothesis_id: string;
+  status: 'supported' | 'rejected' | 'inconclusive' | string;
+  challenge_rationale: string;
+  contradicting_evidence_ids: string[];
+  independent_evidence_ids: string[];
+  challenger_agent: string;
+}
+
 export interface InvestigationResponse {
   id: string;
   incident_id: string;
   status: 'running' | 'complete' | 'failed' | string;
   evidence: EvidenceBundle | null;
   hypotheses: HypothesisItem[] | null;
-  challenge: Record<string, unknown> | null;
+  challenge: ChallengeResult | null;
   postmortem?: PostmortemDraft | null;
   created_at: string;
   updated_at: string;

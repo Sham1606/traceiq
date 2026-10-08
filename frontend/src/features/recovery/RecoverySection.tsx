@@ -204,7 +204,7 @@ export function RecoverySection({
       <div className="flex flex-wrap gap-2 text-[10px] font-mono">
         <span className="px-2.5 py-1 rounded bg-indigo-950/80 text-indigo-300 border border-indigo-800/60 flex items-center gap-1.5">
           <Activity className="w-3 h-3 text-indigo-400" />
-          AI: PROPOSES RECOVERY
+          DETERMINISTIC: PROPOSES RECOVERY
         </span>
         <span className="px-2.5 py-1 rounded bg-cyan-950/80 text-cyan-300 border border-cyan-800/60 flex items-center gap-1.5">
           <Layers className="w-3 h-3 text-cyan-400" />
@@ -262,7 +262,7 @@ export function RecoverySection({
                         ACTION ID: {act.id.slice(0, 8)}
                       </span>
                       <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
-                        AI RECOMMENDATION
+                        DETERMINISTIC RECOMMENDATION
                       </span>
                       {isHighRisk && (
                         <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800 flex items-center gap-1 font-semibold">

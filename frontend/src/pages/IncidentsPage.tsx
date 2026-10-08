@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   AlertCircle,
   Clock,
@@ -10,6 +10,7 @@ import {
   Layers,
   RefreshCw,
   Zap,
+  Sparkles,
 } from 'lucide-react';
 import { api } from '../services/api';
 import { IncidentResponse } from '../types/api';
@@ -88,10 +89,18 @@ export function IncidentsPage() {
             </span>
           </h1>
           <p className="text-sm text-slate-400 mt-1">
-            Active and archived production incidents available for deterministic evidence correlation.
+            Canonical scenarios alongside clearly identified demo and historical incident records.
           </p>
         </div>
         <div className="flex items-center space-x-2">
+          <Link
+            to="/lab"
+            className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow transition"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Live Incident Lab</span>
+          </Link>
+
           <button
             onClick={fetchIncidents}
             disabled={loading}
@@ -139,9 +148,12 @@ export function IncidentsPage() {
           >
             <option value="all">All Statuses</option>
             <option value="detected">Detected</option>
+            <option value="open">Open</option>
             <option value="investigating">Investigating</option>
             <option value="mitigated">Mitigated</option>
             <option value="resolved">Resolved</option>
+            <option value="recovered">Recovered</option>
+            <option value="archived">Archived</option>
           </select>
         </div>
       </div>

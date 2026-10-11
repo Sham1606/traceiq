@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from .builder import build_investigation_graph
+from ..diagnostics import safe_error_diagnostic
 from ..providers.base import AIProvider, AIProviderError
 from ..schemas import AIExecutionError
 from ..state import InvestigationState
@@ -28,18 +29,19 @@ def run_investigation_graph(
         return final_state
 
     except Exception as exc:
+        diagnostic = safe_error_diagnostic(exc)
         logger.warning(
-            "AI investigation graph execution failed for incident %s: %s. Initiating fallback.",
+            "AI investigation graph execution failed: incident=%s category=%s exception=%s. Initiating fallback.",
             inv_id,
-            exc,
+            diagnostic["failure_category"],
+            diagnostic["exception_class"],
         )
         # Create safe fallback state
         fallback_state = dict(initial_state)
         errors = list(fallback_state.get("errors", []))
         errors.append({
             "node_name": "graph_runner",
-            "error_type": type(exc).__name__,
-            "message": str(exc),
+            **diagnostic,
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "recovered": True,
         })

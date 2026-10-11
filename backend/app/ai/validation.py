@@ -14,7 +14,38 @@ from .schemas import AIHypothesis, InvestigatorFinding
 
 class AIValidationError(Exception):
     """Raised when structured AI output violates semantic or evidence reference contracts."""
-    pass
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        category: str = "structured_output_validation",
+        retryable: bool = False,
+        attempt_count: int = 1,
+        status_code: int | None = None,
+        schema_fields: list[str] | None = None,
+    ) -> None:
+        super().__init__(message)
+        self.category = category
+        self.retryable = retryable
+        self.attempt_count = attempt_count
+        self.status_code = status_code
+        self.schema_fields = schema_fields or []
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        category: str = "structured_output_validation",
+        retryable: bool = False,
+        attempt_count: int = 1,
+        status_code: int | None = None,
+    ) -> None:
+        super().__init__(message)
+        self.category = category
+        self.retryable = retryable
+        self.attempt_count = attempt_count
+        self.status_code = status_code
 
 
 def extract_valid_evidence_ids(evidence_data: dict[str, Any]) -> set[str]:

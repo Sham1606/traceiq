@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Sparkles,
@@ -19,62 +19,89 @@ import {
 import { api } from '../services/api';
 import { SeverityBadge } from '../components/common/Badge';
 
-// Flagship Demo Example from Part 8 of specifications
+// Seven neutral telemetry inputs for the Live Incident Lab example.
 const DEMO_ORDER_LATENCY_EVIDENCE = [
   {
+    id: 'E-001',
     type: 'metric',
     service: 'orders-db',
     metric: 'cpu_utilization',
+    timestamp: '2026-10-09T18:10:00Z',
+    baseline: 42.0,
+    incident: 42.0,
+    value: 42.0,
+    delta: 0.0,
+    anomaly: false,
+    summary: 'orders-db CPU utilization measured 42% at 18:10.',
+  },
+  {
+    id: 'E-002',
+    type: 'metric',
+    service: 'orders-db',
+    metric: 'cpu_utilization',
+    timestamp: '2026-10-09T18:14:00Z',
     baseline: 42.0,
     incident: 91.0,
     value: 91.0,
     delta: 49.0,
     anomaly: true,
-    summary: 'orders-db CPU utilization increased from 42% baseline to 91% incident peak.',
+    summary: 'orders-db CPU utilization measured 91% at 18:14.',
   },
   {
+    id: 'E-003',
     type: 'metric',
     service: 'orders-db',
-    metric: 'connection_pool_utilization',
+    metric: 'connection_utilization',
+    timestamp: '2026-10-09T18:15:00Z',
     baseline: 35.0,
     incident: 97.0,
     value: 97.0,
     delta: 62.0,
     anomaly: true,
-    summary: 'orders-db connection pool utilization reached critical 97% capacity.',
+    summary: 'orders-db connection utilization measured 97% at 18:15.',
   },
   {
+    id: 'E-004',
     type: 'metric',
     service: 'order-service',
-    metric: 'p99_latency_ms',
-    baseline: 45.0,
-    incident: 216.0,
-    value: 216.0,
-    delta: 171.0,
+    metric: 'request_latency_ms',
+    timestamp: '2026-10-09T18:16:00Z',
+    baseline: 50.0,
+    incident: 240.0,
+    value: 240.0,
+    delta: 190.0,
+    delta_ratio: 3.8,
     anomaly: true,
-    summary: 'order-service p99 latency escalated by 380% due to database connection queuing.',
+    summary: 'order-service request latency increased 380% at 18:16.',
   },
   {
+    id: 'E-005',
     type: 'metric',
     service: 'api-gateway',
     metric: 'http_5xx_rate',
+    timestamp: '2026-10-09T18:17:00Z',
     baseline: 0.05,
     incident: 0.17,
     value: 0.17,
     delta: 0.12,
+    delta_ratio: 2.4,
     anomaly: true,
-    summary: 'api-gateway error rate increased by 240% during order submission downstream timeouts.',
+    summary: 'api-gateway error rate increased 240% at 18:17.',
   },
   {
+    id: 'E-006',
     type: 'deployment',
     service: 'order-service',
-    event_id: 'dep-check-none',
-    summary: 'No recent deployment detected in 24-hour observation window.',
+    event_id: 'dep-none',
+    timestamp: '2026-10-09T18:18:00Z',
+    summary: 'No deployment was reported during the observed incident window.',
   },
   {
+    id: 'E-007',
     type: 'dependency',
-    service: 'payment-gateway',
-    summary: 'External payment gateway dependency health remains normal (latency 22ms, error rate 0.0%).',
+    service: 'payment-provider-api',
+    timestamp: '2026-10-09T18:18:00Z',
+    summary: 'External dependency health was reported within normal operating range.',
   },
 ];
 
@@ -85,7 +112,7 @@ export function LiveIncidentLabPage() {
   const [severity, setSeverity] = useState<'sev1' | 'sev2' | 'sev3' | 'sev4'>('sev1');
   const [servicesInput, setServicesInput] = useState('orders-db, order-service, api-gateway');
   const [description, setDescription] = useState(
-    'Order processing latency degrades following orders-db connection saturation and CPU pressure. Telemetry shows downstream queuing.'
+    'Customers are experiencing slow order processing and intermittent order failures.'
   );
   const [detectedAt, setDetectedAt] = useState(new Date().toISOString().slice(0, 19));
   const [evidenceJson, setEvidenceJson] = useState(
@@ -94,6 +121,29 @@ export function LiveIncidentLabPage() {
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [aiMode, setAiMode] = useState<'mock' | 'gemini' | 'deterministic' | 'unavailable'>('unavailable');
+
+  useEffect(() => {
+    let mounted = true;
+    api.getHealth()
+      .then((health) => {
+        if (mounted) setAiMode(health.ai_mode);
+      })
+      .catch(() => {
+        if (mounted) setAiMode('unavailable');
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const aiModeLabel = aiMode === 'mock'
+    ? 'MOCK'
+    : aiMode === 'gemini'
+      ? 'GEMINI CONFIGURED · NOT VERIFIED'
+      : aiMode === 'deterministic'
+        ? 'DETERMINISTIC'
+        : 'UNAVAILABLE / FALLBACK';
 
   // Quick preset loaders
   const loadOrderLatencyDemo = () => {
@@ -101,7 +151,7 @@ export function LiveIncidentLabPage() {
     setSeverity('sev1');
     setServicesInput('orders-db, order-service, api-gateway');
     setDescription(
-      'Order processing latency degrades following orders-db connection saturation and CPU pressure.'
+      'Customers are experiencing slow order processing and intermittent order failures.'
     );
     setEvidenceJson(JSON.stringify(DEMO_ORDER_LATENCY_EVIDENCE, null, 2));
     setError(null);
@@ -204,8 +254,11 @@ export function LiveIncidentLabPage() {
             Live Incident Lab
           </h1>
           <p className="text-sm text-slate-300 max-w-2xl">
-            Create an arbitrary production incident with newly supplied telemetry and run TRACEIQ's live AI reasoning pipeline. No scenario ground truth is attached — reasoning is strictly evidence-grounded.
+            Create an incident with supplied telemetry and run the configured TRACEIQ investigation pipeline. No canonical scenario ground truth is attached; results are based on the supplied evidence.
           </p>
+          <div role="status" aria-label="AI mode" className="inline-flex rounded border border-slate-700 bg-slate-950 px-2.5 py-1 text-[11px] font-mono font-semibold text-slate-200">
+            AI MODE: {aiModeLabel}
+          </div>
         </div>
 
         {/* Demo Templates Bar */}
@@ -344,6 +397,7 @@ export function LiveIncidentLabPage() {
           <textarea
             rows={10}
             required
+            aria-label="Evidence Input (Structured Telemetry JSON)"
             value={evidenceJson}
             onChange={(e) => setEvidenceJson(e.target.value)}
             className="w-full bg-slate-950 border border-slate-800 rounded p-3 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500 leading-relaxed"
@@ -356,7 +410,7 @@ export function LiveIncidentLabPage() {
             <span>✓ GROUND TRUTH FIREWALL: ACTIVE</span>
           </div>
           <p className="text-slate-500">
-            Live custom incidents have no canonical scenario ground truth attached. The AI reasoning engine synthesizes findings strictly from the evidence supplied above.
+            Custom incidents have no canonical scenario ground truth attached. Investigation findings are based on the evidence supplied above.
           </p>
         </div>
 
@@ -374,12 +428,12 @@ export function LiveIncidentLabPage() {
             {submitting ? (
               <>
                 <RotateCcw className="w-4 h-4 animate-spin" />
-                <span>Launching AI Investigation...</span>
+                <span>Launching Investigation...</span>
               </>
             ) : (
               <>
                 <Play className="w-4 h-4" />
-                <span>START LIVE INVESTIGATION</span>
+                <span>START INVESTIGATION</span>
               </>
             )}
           </button>

@@ -1,9 +1,11 @@
 """Tests for LangGraph execution, planner, and safe deterministic fallback."""
+import threading
+import time
 import pytest
 from app.ai.config import AISettings
 from app.ai.graph import build_investigation_graph, run_investigation_graph
 from app.ai.planner import InvestigationPlanner
-from app.ai.providers import MockAIProvider
+from app.ai.providers import AIProvider, MockAIProvider
 from app.ai.state import create_initial_state
 from app.services.investigation.service import start_investigation
 from app.models.orm import IncidentRow, AuditEntryRow
@@ -110,6 +112,45 @@ def test_langgraph_workflow_execution(test_incident_dict, test_evidence_dict):
     assert "challenge" in nodes
     assert "evaluator" in nodes
     assert final_state["metadata"]["completed_at"] is not None
+
+
+def test_langgraph_provider_calls_are_sequential(test_incident_dict, test_evidence_dict):
+    class TrackingProvider(AIProvider):
+        def __init__(self):
+            self.inner = MockAIProvider()
+            self.active = 0
+            self.max_active = 0
+            self.call_count = 0
+            self.lock = threading.Lock()
+
+        @property
+        def provider_name(self):
+            return "mock"
+
+        @property
+        def model_name(self):
+            return "tracking-mock"
+
+        def generate_structured(self, schema, prompt, system_message=None):
+            with self.lock:
+                self.active += 1
+                self.call_count += 1
+                self.max_active = max(self.max_active, self.active)
+            try:
+                time.sleep(0.01)
+                return self.inner.generate_structured(schema, prompt, system_message)
+            finally:
+                with self.lock:
+                    self.active -= 1
+
+    provider = TrackingProvider()
+    state = create_initial_state(test_incident_dict, test_evidence_dict)
+
+    result = run_investigation_graph(state, provider=provider)
+
+    assert result["metadata"].get("deterministic_fallback") is not True
+    assert provider.call_count > 0
+    assert provider.max_active == 1
 
 
 def test_langgraph_failure_and_fallback_state(test_incident_dict, test_evidence_dict):

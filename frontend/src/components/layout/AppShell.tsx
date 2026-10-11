@@ -24,7 +24,7 @@ export function AppShell() {
         const res = await api.getHealth();
         if (mounted) setHealth(res);
       } catch {
-        if (mounted) setHealth({ status: 'degraded', version: '0.1.0', db: 'error' });
+        if (mounted) setHealth({ status: 'degraded', version: '0.1.0', db: 'error', ai_mode: 'unavailable' });
       }
     };
     checkHealth();

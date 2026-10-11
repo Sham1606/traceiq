@@ -6,6 +6,7 @@ import { WorkspacePage } from '../../src/pages/WorkspacePage';
 import { AuditSection } from '../../src/features/audit/AuditSection';
 import { AIStatusPanel } from '../../src/features/investigation/AIStatusPanel';
 import { InvestigationProgress } from '../../src/features/investigation/InvestigationProgress';
+import { LiveIncidentLabPage } from '../../src/pages/LiveIncidentLabPage';
 import { api } from '../../src/services/api';
 import { IncidentResponse, InvestigationResponse, AuditEntryResponse } from '../../src/types/api';
 
@@ -184,8 +185,12 @@ describe('Incidents and Workspace End-to-End Flow', () => {
         ai_telemetry: {
           mode: 'live',
           provider: 'gemini',
-          model: 'gemini-current',
+          model: 'gemini-configured-model',
           deterministic_validation: 'PASS',
+          latency_ms: 1840,
+          structured_output_valid: true,
+          evidence_ids_referenced: 7,
+          fallback_used: false,
         },
       },
     } as unknown as InvestigationResponse;
@@ -216,13 +221,18 @@ describe('Incidents and Workspace End-to-End Flow', () => {
       <AIStatusPanel investigation={liveInvestigation} leadingHypothesis={mockInvestigation.hypotheses![0]} />
     );
     expect(screen.getByText('AI MODE LIVE')).toBeInTheDocument();
-    expect(screen.getByText('GEMINI')).toBeInTheDocument();
-    expect(screen.getByText('gemini-current')).toBeInTheDocument();
+    expect(screen.getByText('Gemini')).toBeInTheDocument();
+    expect(screen.getByText('gemini-configured-model')).toBeInTheDocument();
+    const runtimeMetadata = screen.getByLabelText('AI runtime metadata');
+    expect(runtimeMetadata).toHaveTextContent('Latency: 1840 ms');
+    expect(runtimeMetadata).toHaveTextContent('Structured output: VALID');
+    expect(runtimeMetadata).toHaveTextContent('Evidence references: 7');
+    expect(runtimeMetadata).toHaveTextContent('Fallback: NO');
 
     rerender(
       <AIStatusPanel investigation={mockProviderInvestigation} leadingHypothesis={mockInvestigation.hypotheses![0]} />
     );
-    expect(screen.getByText('AI MODE DETERMINISTIC / MOCK')).toBeInTheDocument();
+    expect(screen.getByText('AI MODE MOCK')).toBeInTheDocument();
     expect(screen.queryByText('AI MODE LIVE')).not.toBeInTheDocument();
 
     rerender(
@@ -234,7 +244,8 @@ describe('Incidents and Workspace End-to-End Flow', () => {
     rerender(
       <AIStatusPanel investigation={fallbackInvestigation} leadingHypothesis={mockInvestigation.hypotheses![0]} />
     );
-    expect(screen.getByText('AI MODE FALLBACK')).toBeInTheDocument();
+    expect(screen.getByText('AI MODE UNAVAILABLE / FALLBACK')).toBeInTheDocument();
+    expect(screen.getByLabelText('AI runtime metadata')).toHaveTextContent('Fallback: YES');
     expect(screen.queryByText('AI PROPOSAL')).not.toBeInTheDocument();
 
     rerender(
@@ -242,6 +253,56 @@ describe('Incidents and Workspace End-to-End Flow', () => {
     );
     expect(screen.getByText('LIVE PROVIDER NOT CONFIGURED')).toBeInTheDocument();
     expect(screen.getByText('DETERMINISTIC VALIDATION: NOT REPORTED')).toBeInTheDocument();
+  });
+
+  it('provides seven observed, non-conclusive inputs in the Live Incident Lab preset', async () => {
+    vi.spyOn(api, 'getHealth').mockResolvedValue({
+      status: 'ok',
+      version: '0.1.0',
+      db: 'ok',
+      ai_mode: 'mock',
+    });
+
+    render(
+      <MemoryRouter>
+        <LiveIncidentLabPage />
+      </MemoryRouter>
+    );
+
+    const evidenceInput = await screen.findByRole('textbox', { name: 'Evidence Input (Structured Telemetry JSON)' });
+    const evidenceItems = JSON.parse((evidenceInput as HTMLTextAreaElement).value);
+    expect(evidenceItems).toHaveLength(7);
+    expect(evidenceItems.map((item: { id: string }) => item.id)).toEqual([
+      'E-001', 'E-002', 'E-003', 'E-004', 'E-005', 'E-006', 'E-007',
+    ]);
+    expect(evidenceItems.map((item: { type: string }) => item.type)).toContain('deployment');
+    expect(evidenceItems.map((item: { type: string }) => item.type)).toContain('dependency');
+    expect(JSON.stringify(evidenceItems).toLowerCase()).not.toMatch(/root cause|database degradation is/);
+    expect(screen.getByRole('status', { name: 'AI mode' })).toHaveTextContent('AI MODE: MOCK');
+  });
+
+  it.each([
+    ['mock', 'AI MODE: MOCK'],
+    ['gemini', 'AI MODE: GEMINI CONFIGURED · NOT VERIFIED'],
+    ['deterministic', 'AI MODE: DETERMINISTIC'],
+    ['unavailable', 'AI MODE: UNAVAILABLE / FALLBACK'],
+  ] as const)('labels the Live Incident Lab truthfully for %s mode', async (aiMode, expectedLabel) => {
+    vi.spyOn(api, 'getHealth').mockResolvedValue({
+      status: 'ok',
+      version: '0.1.0',
+      db: 'ok',
+      ai_mode: aiMode,
+    });
+
+    render(
+      <MemoryRouter>
+        <LiveIncidentLabPage />
+      </MemoryRouter>
+    );
+
+    expect(await screen.findByRole('status', { name: 'AI mode' })).toHaveTextContent(expectedLabel);
+    expect(screen.queryByText(/live AI reasoning pipeline/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/START LIVE INVESTIGATION/i)).not.toBeInTheDocument();
   });
 
   it('renders immutable audit trail for incident', async () => {

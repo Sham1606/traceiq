@@ -43,16 +43,16 @@ export function AIStatusPanel({ investigation, leadingHypothesis }: AIStatusPane
   // Mode badge styling
   const isLive = mode === 'live';
   const isFallback = mode === 'fallback' || Boolean(telemetry.fallback_reason);
-  const isMock = mode === 'mock';
+  const isMock = providerName === 'mock' || mode === 'mock';
   const isDeterministic = mode === 'deterministic';
   const isUnconfigured = mode === 'not-configured';
   const isUnverified = isUnconfigured && providerName !== 'not configured';
   const modeLabel = isLive
     ? 'AI MODE LIVE'
-    : isFallback
-      ? 'AI MODE FALLBACK'
-      : isMock
-        ? 'AI MODE DETERMINISTIC / MOCK'
+    : isMock
+      ? 'AI MODE MOCK'
+      : isFallback
+        ? 'AI MODE UNAVAILABLE / FALLBACK'
         : isDeterministic
           ? 'DETERMINISTIC ANALYSIS'
           : isUnverified
@@ -68,6 +68,7 @@ export function AIStatusPanel({ investigation, leadingHypothesis }: AIStatusPane
             <Cpu className="w-4 h-4" />
           </div>
           <div>
+
             <div className="text-[11px] font-mono uppercase font-bold tracking-wider text-slate-300 flex flex-wrap items-center gap-2">
               <span>INVESTIGATION ENGINE STATUS</span>
               <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider border ${
@@ -80,7 +81,7 @@ export function AIStatusPanel({ investigation, leadingHypothesis }: AIStatusPane
               </span>
             </div>
             <div className="text-[11px] text-slate-400 font-mono mt-0.5">
-              Provider: <span className="text-slate-200 font-semibold">{providerName.toUpperCase()}</span>
+              Provider: <span className="text-slate-200 font-semibold">{providerName === 'gemini' ? 'Gemini' : providerName.toUpperCase()}</span>
               {modelName && <> · Model: <span className="text-slate-200">{modelName}</span></>}
             </div>
           </div>
@@ -138,6 +139,34 @@ export function AIStatusPanel({ investigation, leadingHypothesis }: AIStatusPane
           <div className="text-[10px] text-slate-400 truncate">Falsification Check</div>
         </div>
       </div>
+
+      {(isLive || isFallback) && (
+        <div aria-label="AI runtime metadata" className="space-y-2 border-t border-slate-800/70 pt-3 text-[11px] font-mono text-slate-400">
+          <div className="flex flex-wrap gap-x-4 gap-y-1">
+            {telemetry.latency_ms != null && <span>Latency: {telemetry.latency_ms} ms</span>}
+            {telemetry.request_count != null && <span>Gemini requests: {telemetry.request_count}</span>}
+            {telemetry.successful_calls != null && <span>Successful calls: {telemetry.successful_calls}</span>}
+            {telemetry.failed_calls != null && <span>Failed calls: {telemetry.failed_calls}</span>}
+            {telemetry.retry_count != null && <span>Retries: {telemetry.retry_count}</span>}
+            {telemetry.retry_after_seconds != null && <span>Retry-After: {telemetry.retry_after_seconds}s</span>}
+            {telemetry.provider_code && <span>Provider code: {telemetry.provider_code}</span>}
+            <span>Structured output: {telemetry.structured_output_valid ? 'VALID' : 'NOT VALIDATED'}</span>
+            <span>Evidence references: {telemetry.evidence_ids_referenced ?? 0}</span>
+            <span>Fallback: {(telemetry.fallback_used ?? isFallback) ? 'YES' : 'NO'}</span>
+          </div>
+          {!!telemetry.failure_details?.length && (
+            <ul aria-label="Sanitized stage diagnostics" className="space-y-1 border-t border-slate-800/60 pt-2">
+              {telemetry.failure_details.map((failure, index) => (
+                <li key={`${failure.node_name}-${index}`}>
+                  {failure.node_name}: {failure.failure_category} ({failure.exception_class}; {failure.retryable ? 'retryable' : 'not retryable'})
+                  {failure.schema_fields?.length ? ` · fields: ${failure.schema_fields.join(', ')}` : ''}
+                  {' · '}{failure.explanation}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
 
       {/* Leading AI Finding & Grounding Card */}
       {leadingHypothesis && (

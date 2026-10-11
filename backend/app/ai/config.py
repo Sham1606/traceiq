@@ -14,16 +14,14 @@ class AISettings(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
     enabled: bool = Field(default=False)
-    provider: Literal["mock", "gemini", "openai", "anthropic"] = Field(default="mock")
+    provider: Literal["mock", "gemini"] = Field(default="mock")
     model: str = Field(default="mock-reasoner")
     temperature: float = Field(default=0.0, ge=0.0, le=2.0)
     timeout_seconds: float = Field(default=30.0, gt=0.0)
-    max_retries: int = Field(default=2, ge=0)
+    max_retries: int = Field(default=1, ge=0, le=1)
 
     # API keys (masked in representation)
     gemini_api_key: str | None = Field(default=None)
-    openai_api_key: str | None = Field(default=None)
-    anthropic_api_key: str | None = Field(default=None)
 
     @classmethod
     def from_env(cls) -> AISettings:
@@ -32,10 +30,12 @@ class AISettings(BaseModel):
         enabled = enabled_raw in {"1", "true", "yes", "on"}
 
         provider_raw = os.environ.get("AI_PROVIDER", "mock").lower()
-        if provider_raw not in {"mock", "gemini", "openai", "anthropic"}:
-            provider_raw = "mock"
+        if provider_raw not in {"mock", "gemini"}:
+            raise ValueError("Unsupported AI_PROVIDER. Supported providers are 'mock' and 'gemini'.")
 
         model = os.environ.get("AI_MODEL", "mock-reasoner")
+        if provider_raw == "gemini":
+            model = os.environ.get("GEMINI_MODEL") or model
 
         try:
             temperature = float(os.environ.get("AI_TEMPERATURE", "0.0"))
@@ -48,9 +48,9 @@ class AISettings(BaseModel):
             timeout_seconds = 30.0
 
         try:
-            max_retries = int(os.environ.get("AI_MAX_RETRIES", "2"))
+            max_retries = int(os.environ.get("AI_MAX_RETRIES", "1"))
         except ValueError:
-            max_retries = 2
+            max_retries = 1
 
         return cls(
             enabled=enabled,
@@ -60,8 +60,6 @@ class AISettings(BaseModel):
             timeout_seconds=timeout_seconds,
             max_retries=max_retries,
             gemini_api_key=os.environ.get("GEMINI_API_KEY"),
-            openai_api_key=os.environ.get("OPENAI_API_KEY"),
-            anthropic_api_key=os.environ.get("ANTHROPIC_API_KEY"),
         )
 
     def is_provider_available(self) -> bool:
@@ -69,11 +67,7 @@ class AISettings(BaseModel):
         if self.provider == "mock":
             return True
         if self.provider == "gemini":
-            return bool(self.gemini_api_key)
-        if self.provider == "openai":
-            return bool(self.openai_api_key)
-        if self.provider == "anthropic":
-            return bool(self.anthropic_api_key)
+            return bool(self.gemini_api_key and self.model and self.model != "mock-reasoner")
         return False
 
     def __repr__(self) -> str:

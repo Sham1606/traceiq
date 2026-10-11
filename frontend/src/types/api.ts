@@ -85,6 +85,14 @@ export interface InvestigationCorrelation {
   shared_evidence_ids?: string[];
   causal_sequence?: string[];
   false_lead_domains?: string[];
+  request_started_at?: string | null;
+  request_completed_at?: string | null;
+  latency_ms?: number | null;
+  last_request_latency_ms?: number | null;
+  status?: string;
+  structured_output_valid?: boolean;
+  evidence_ids_referenced?: number;
+  fallback_used?: boolean;
   contradicting_evidence_ids?: string[];
   supports?: string[];
   contradicts?: string[];
@@ -116,6 +124,34 @@ export interface AIInvestigationTelemetry {
   challenge_status?: string;
   deterministic_validation?: string;
   fallback_reason?: string;
+  request_started_at?: string | null;
+  request_completed_at?: string | null;
+  latency_ms?: number | null;
+  last_request_latency_ms?: number | null;
+  request_count?: number;
+  attempt_count?: number;
+  retry_count?: number;
+  successful_calls?: number;
+  failed_calls?: number;
+  retry_after_seconds?: number | null;
+  http_status?: number | null;
+  provider_code?: string | null;
+  status?: string;
+  structured_output_valid?: boolean;
+  evidence_ids_referenced?: number;
+  fallback_used?: boolean;
+  failure_details?: Array<{
+    node_name: string;
+    failure_category: string;
+    exception_class: string;
+    explanation: string;
+    retryable: boolean;
+    attempt_count?: number;
+    status_code?: number;
+    provider_code?: string;
+    retry_after_seconds?: number;
+    schema_fields?: string[];
+  }>;
 }
 
 export interface EvidenceItem {
@@ -299,4 +335,5 @@ export interface HealthResponse {
   status: 'ok' | 'degraded';
   version: string;
   db: 'ok' | 'error';
+  ai_mode: 'mock' | 'gemini' | 'deterministic' | 'unavailable';
 }

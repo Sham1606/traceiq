@@ -1,7 +1,7 @@
 """AI Provider abstraction and exception hierarchy.
 
-Permits transparent substitution between mock test providers, Gemini, OpenAI,
-or local models without tight coupling.
+Permits transparent substitution between the mock test provider and Gemini
+without tight coupling.
 """
 from __future__ import annotations
 
@@ -16,7 +16,25 @@ T = TypeVar("T", bound=BaseModel)
 
 class AIProviderError(Exception):
     """Base exception for all AI provider communication or execution failures."""
-    pass
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        status_code: int | None = None,
+        provider_code: str | None = None,
+        category: str | None = None,
+        retryable: bool = False,
+        retry_after_seconds: float | None = None,
+        attempt_count: int = 1,
+    ) -> None:
+        super().__init__(message)
+        self.status_code = status_code
+        self.provider_code = provider_code
+        self.category = category
+        self.retryable = retryable
+        self.retry_after_seconds = retry_after_seconds
+        self.attempt_count = attempt_count
 
 
 class AITimeoutError(AIProviderError):

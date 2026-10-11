@@ -8,10 +8,7 @@ from .mock import MockAIProvider
 
 
 def get_ai_provider(config: AISettings | None = None) -> AIProvider:
-    """Factory function to instantiate the configured AI provider.
-
-    Defaults to MockAIProvider if mock is specified or credentials are absent in test mode.
-    """
+    """Instantiate exactly the configured, implemented provider or fail clearly."""
     cfg = config or ai_settings
 
     if cfg.provider == "mock":
@@ -22,37 +19,17 @@ def get_ai_provider(config: AISettings | None = None) -> AIProvider:
             raise AIProviderError(
                 "Gemini AI provider configured but GEMINI_API_KEY is missing from environment."
             )
-        # Gemini provider instantiation (can be loaded dynamically)
-        # For Phase 5.1 foundation, if library is not present or credentials missing, raise clean error
-        try:
-            from .gemini import GeminiAIProvider
-            return GeminiAIProvider(
-                api_key=cfg.gemini_api_key,
-                model_name=cfg.model,
-                temperature=cfg.temperature,
-                timeout_seconds=cfg.timeout_seconds,
-            )
-        except ImportError:
+        if not cfg.model or cfg.model == "mock-reasoner":
             raise AIProviderError(
-                "Gemini provider dependencies not installed. Ensure langchain-google-genai is available."
+                "Gemini AI provider requires GEMINI_MODEL (or AI_MODEL) to name the configured model."
             )
-
-    if cfg.provider == "openai":
-        if not cfg.openai_api_key:
-            raise AIProviderError(
-                "OpenAI provider configured but OPENAI_API_KEY is missing from environment."
-            )
-        try:
-            from .openai import OpenAIAIProvider
-            return OpenAIAIProvider(
-                api_key=cfg.openai_api_key,
-                model_name=cfg.model,
-                temperature=cfg.temperature,
-                timeout_seconds=cfg.timeout_seconds,
-            )
-        except ImportError:
-            raise AIProviderError(
-                "OpenAI provider dependencies not installed. Ensure langchain-openai is available."
-            )
+        from .gemini import GeminiAIProvider
+        return GeminiAIProvider(
+            api_key=cfg.gemini_api_key,
+            model_name=cfg.model,
+            temperature=cfg.temperature,
+            timeout_seconds=cfg.timeout_seconds,
+            max_retries=cfg.max_retries,
+        )
 
     raise AIProviderError(f"Unsupported AI provider configured: {cfg.provider}")

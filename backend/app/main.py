@@ -9,6 +9,7 @@ from sqlalchemy import text
 
 from app.core.config import settings
 from app.core.database import engine, init_db
+from app.ai.config import ai_settings
 from app.schemas.api import HealthResponse
 from app.api.incidents import router as incidents_router
 from app.api.investigations import router as investigations_router
@@ -42,4 +43,11 @@ def health() -> HealthResponse:
         db_status = "error"
 
     overall = "ok" if db_status == "ok" else "degraded"
-    return HealthResponse(status=overall, version=settings.app_version, db=db_status)
+    if not ai_settings.enabled:
+        ai_mode = "deterministic"
+    elif not ai_settings.is_provider_available():
+        ai_mode = "unavailable"
+    else:
+        ai_mode = ai_settings.provider
+
+    return HealthResponse(status=overall, version=settings.app_version, db=db_status, ai_mode=ai_mode)

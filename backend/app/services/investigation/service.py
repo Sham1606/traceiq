@@ -12,10 +12,59 @@ from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.ai.diagnostics import safe_error_diagnostic
 from app.evidence import EvidenceEngine
 from app.models.orm import AuditEntryRow, IncidentRow, InvestigationRow
 from app.schemas.api import InvestigationResponse
+from app.ai.validation import extract_valid_evidence_ids
 from .hypotheses import generate_hypotheses
+
+
+def _count_valid_evidence_references(state: dict, evidence: dict) -> int:
+    """Count unique validated evidence IDs cited by accepted investigation results."""
+    valid_ids = extract_valid_evidence_ids(evidence)
+    referenced_ids: set[str] = set()
+    candidate_results = [
+        *state.get("findings", []),
+        *state.get("correlations", []),
+        *state.get("hypotheses", []),
+        state.get("challenge") or {},
+    ]
+    reference_fields = {
+        "evidence_ids",
+        "supporting_evidence_ids",
+        "contradicting_evidence_ids",
+        "shared_evidence_ids",
+        "independent_evidence_ids",
+    }
+    for result in candidate_results:
+        if not isinstance(result, dict):
+            continue
+        for field in reference_fields:
+            for evidence_id in result.get(field, []):
+                if str(evidence_id) in valid_ids:
+                    referenced_ids.add(str(evidence_id))
+    return len(referenced_ids)
+
+
+def _safe_stage_failures(errors: list[dict]) -> list[dict]:
+    safe_fields = (
+        "node_name",
+        "failure_category",
+        "exception_class",
+        "explanation",
+        "retryable",
+        "attempt_count",
+        "status_code",
+        "provider_code",
+        "retry_after_seconds",
+        "schema_fields",
+    )
+    return [
+        {key: error[key] for key in safe_fields if key in error}
+        for error in errors
+        if isinstance(error, dict)
+    ]
 
 
 def _row_to_response(row: InvestigationRow) -> InvestigationResponse:
@@ -143,8 +192,26 @@ def start_investigation(db: Session, incident_id: str) -> InvestigationResponse 
                     inv.hypotheses = [h.model_dump() for h in hypotheses]
 
                 meta = final_state.get("metadata", {})
-                is_fallback = bool(meta.get("deterministic_fallback"))
-                ai_mode = "fallback" if is_fallback else ("live" if ai_provider.provider_name != "mock" else "mock")
+                is_mock = ai_provider.provider_name == "mock"
+                provider_succeeded = bool(getattr(ai_provider, "successful_calls", 0))
+                provider_failed = bool(getattr(ai_provider, "failed_calls", 0))
+                is_fallback = (
+                    not is_mock
+                    and (
+                        bool(meta.get("deterministic_fallback"))
+                        or bool(final_state.get("errors"))
+                        or provider_failed
+                        or not provider_succeeded
+                    )
+                )
+                ai_mode = "fallback" if is_fallback else ("mock" if is_mock else "live")
+                runtime_metadata = dict(getattr(ai_provider, "runtime_metadata", {}))
+                runtime_metadata.update({
+                    "status": "fallback" if is_fallback else "mock" if is_mock else "success",
+                    "structured_output_valid": bool(provider_succeeded) and not is_fallback,
+                    "evidence_ids_referenced": _count_valid_evidence_references(final_state, evidence_dict),
+                    "fallback_used": is_fallback or bool(final_state.get("errors")),
+                })
                 evidence_dict["ai_telemetry"] = {
                     "mode": ai_mode,
                     "provider": ai_provider.provider_name,
@@ -154,10 +221,13 @@ def start_investigation(db: Session, incident_id: str) -> InvestigationResponse 
                     "hypotheses_count": len(inv.hypotheses or []),
                     "challenge_status": "Completed" if final_state.get("challenge") else "Not run",
                     "deterministic_validation": "PASS",
+                    "failure_details": _safe_stage_failures(final_state.get("errors", [])),
+                    **runtime_metadata,
                 }
 
             except Exception as ai_exc:  # noqa: BLE001
-                _audit(db, incident_id, "ai_investigation_fallback", {"error": str(ai_exc)})
+                diagnostic = safe_error_diagnostic(ai_exc)
+                _audit(db, incident_id, "ai_investigation_fallback", {"failure": diagnostic})
                 hypotheses = generate_hypotheses(bundle)
                 inv.hypotheses = [h.model_dump() for h in hypotheses]
                 evidence_dict["ai_telemetry"] = {
@@ -169,7 +239,12 @@ def start_investigation(db: Session, incident_id: str) -> InvestigationResponse 
                     "hypotheses_count": len(inv.hypotheses or []),
                     "challenge_status": "Not run",
                     "deterministic_validation": "PASS",
-                    "fallback_reason": str(ai_exc),
+                    "fallback_reason": diagnostic["explanation"],
+                    "failure_details": [{"node_name": "provider_setup", **diagnostic}],
+                    "status": "unavailable",
+                    "structured_output_valid": False,
+                    "evidence_ids_referenced": 0,
+                    "fallback_used": True,
                 }
         else:
             hypotheses = generate_hypotheses(bundle)
@@ -183,6 +258,10 @@ def start_investigation(db: Session, incident_id: str) -> InvestigationResponse 
                 "hypotheses_count": len(inv.hypotheses or []),
                 "challenge_status": "Not run",
                 "deterministic_validation": "PASS",
+                "status": "deterministic",
+                "structured_output_valid": False,
+                "evidence_ids_referenced": 0,
+                "fallback_used": False,
             }
 
         inv.evidence = evidence_dict

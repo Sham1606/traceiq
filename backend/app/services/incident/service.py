@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 
 from sqlalchemy.orm import Session
 
+from app.ai.ground_truth import assert_no_ground_truth
 from app.models.orm import IncidentRow
 from app.schemas.api import IncidentCreate, IncidentResponse, LiveIncidentCreate
 
@@ -30,6 +31,8 @@ def _row_to_response(row: IncidentRow) -> IncidentResponse:
 def create_incident(db: Session, payload: IncidentCreate) -> IncidentResponse:
     if payload.detected_at < payload.started_at:
         raise ValueError("detected_at must be >= started_at")
+    if payload.custom_evidence is not None:
+        assert_no_ground_truth(payload.custom_evidence)
     row = IncidentRow(
         id=str(uuid.uuid4()),
         scenario_id=payload.scenario_id,
@@ -53,6 +56,7 @@ def create_incident(db: Session, payload: IncidentCreate) -> IncidentResponse:
 
 def create_live_incident(db: Session, payload: LiveIncidentCreate) -> IncidentResponse:
     """Create a new custom incident from Live Incident Lab with supplied evidence."""
+    assert_no_ground_truth(payload.evidence_items)
     now = datetime.now(timezone.utc)
     started = payload.started_at or now
     detected = payload.detected_at or now

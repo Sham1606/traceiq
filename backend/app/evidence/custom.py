@@ -7,6 +7,7 @@ Guarantees NO ground truth is generated or attached.
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import re
 from typing import Any
 import uuid
 
@@ -28,6 +29,13 @@ def _ensure_datetime(val: Any) -> datetime:
         except Exception:
             pass
     return datetime.now(timezone.utc)
+
+
+def _is_negative_deployment_observation(summary: str) -> bool:
+    return bool(
+        re.search(r"\b(?:no|none|without|not)\b.{0,40}\b(?:deployment|release|rollout)\b", summary, re.IGNORECASE)
+        or re.search(r"\b(?:deployment|release|rollout)\b.{0,40}\b(?:none|absent|not reported|not detected)\b", summary, re.IGNORECASE)
+    )
 
 
 def normalize_custom_evidence(
@@ -80,7 +88,7 @@ def normalize_custom_evidence(
                 "strength": "supported",
                 "summary": summary,
                 "source_ids": [ev_id],
-                "contradicts": False,
+                "contradicts": [],
             })
             continue
 
@@ -93,6 +101,15 @@ def normalize_custom_evidence(
         ev_type = str(raw.get("type", raw.get("category", "observation"))).lower()
         service = str(raw.get("service", raw.get("source", "system")))
         timestamp = _ensure_datetime(raw.get("timestamp", start_dt))
+        raw_contradicts = raw.get("contradicts", [])
+        if isinstance(raw_contradicts, bool):
+            contradicts = [ev_type] if raw_contradicts else []
+        elif isinstance(raw_contradicts, str):
+            contradicts = [raw_contradicts] if raw_contradicts else []
+        elif isinstance(raw_contradicts, list):
+            contradicts = [str(item) for item in raw_contradicts]
+        else:
+            contradicts = []
 
         if ev_type in {"metric", "telemetry", "metric_finding"}:
             metric_name = str(raw.get("metric", raw.get("name", "metric_value")))
@@ -124,7 +141,7 @@ def normalize_custom_evidence(
                 "strength": "strongly_supported" if is_anomaly else "supported",
                 "summary": summary,
                 "source_ids": [ev_id],
-                "contradicts": not is_anomaly,
+                "contradicts": contradicts or ([] if is_anomaly else [metric_name]),
             })
 
         elif ev_type in {"log", "log_finding"}:
@@ -149,14 +166,17 @@ def normalize_custom_evidence(
                 "strength": "strongly_supported" if error_count > 0 else "supported",
                 "summary": summary,
                 "source_ids": [ev_id],
-                "contradicts": False,
+                "contradicts": contradicts,
             })
 
         elif ev_type in {"deployment", "configuration", "dependency", "timeline", "event"}:
             summary = raw.get("summary") or raw.get("message") or f"{ev_type.capitalize()} event in {service}"
+            timeline_event_type = ev_type
+            if ev_type == "deployment" and _is_negative_deployment_observation(str(summary)):
+                timeline_event_type = "observation"
             timeline_findings.append(TimelineFinding(
                 id=ev_id,
-                event_type=ev_type,
+                event_type=timeline_event_type,
                 event_id=str(raw.get("event_id", ev_id)),
                 timestamp=timestamp,
                 related_event_ids=raw.get("related_event_ids", []),
@@ -170,7 +190,7 @@ def normalize_custom_evidence(
                 "strength": "supported",
                 "summary": summary,
                 "source_ids": [ev_id],
-                "contradicts": bool(raw.get("contradicts", False)),
+                "contradicts": contradicts,
             })
 
         else:
@@ -183,7 +203,7 @@ def normalize_custom_evidence(
                 "strength": "supported",
                 "summary": summary,
                 "source_ids": [ev_id],
-                "contradicts": False,
+                "contradicts": contradicts,
             })
 
     # If timeline or metrics exist, synthesize at least one correlation finding if not present

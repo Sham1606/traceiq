@@ -29,6 +29,7 @@ from typing import Any
 from langgraph.graph import StateGraph, START, END
 
 from ..challenge import challenge_hypothesis
+from ..diagnostics import safe_error_diagnostic
 from ..correlation import correlate_findings
 from ..historical import (
     build_fingerprint_from_evidence,
@@ -52,6 +53,15 @@ from ..validation import (
 )
 
 logger = logging.getLogger("traceiq.ai.graph")
+
+
+def _recovered_stage_error(node_name: str, error: Exception) -> dict[str, Any]:
+    return {
+        "node_name": node_name,
+        **safe_error_diagnostic(error),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "recovered": True,
+    }
 
 
 def build_investigation_graph(provider: AIProvider | None = None) -> Any:
@@ -108,14 +118,9 @@ def build_investigation_graph(provider: AIProvider | None = None) -> Any:
             )
             findings.append(finding.model_dump(mode="json"))
         except Exception as e:
-            logger.warning("Deployment investigator encountered isolated failure: %s", e)
-            errors.append({
-                "node_name": "investigate_deployment",
-                "error_type": type(e).__name__,
-                "message": str(e),
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "recovered": True,
-            })
+            diagnostic = _recovered_stage_error("investigate_deployment", e)
+            logger.warning("Investigation stage failed: node=%s category=%s exception=%s", diagnostic["node_name"], diagnostic["failure_category"], diagnostic["exception_class"])
+            errors.append(diagnostic)
 
         return {
             "findings": findings,
@@ -147,14 +152,9 @@ def build_investigation_graph(provider: AIProvider | None = None) -> Any:
             )
             findings.append(finding.model_dump(mode="json"))
         except Exception as e:
-            logger.warning("Database investigator encountered isolated failure: %s", e)
-            errors.append({
-                "node_name": "investigate_database",
-                "error_type": type(e).__name__,
-                "message": str(e),
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "recovered": True,
-            })
+            diagnostic = _recovered_stage_error("investigate_database", e)
+            logger.warning("Investigation stage failed: node=%s category=%s exception=%s", diagnostic["node_name"], diagnostic["failure_category"], diagnostic["exception_class"])
+            errors.append(diagnostic)
 
         return {
             "findings": findings,
@@ -186,14 +186,9 @@ def build_investigation_graph(provider: AIProvider | None = None) -> Any:
             )
             findings.append(finding.model_dump(mode="json"))
         except Exception as e:
-            logger.warning("Dependency investigator encountered isolated failure: %s", e)
-            errors.append({
-                "node_name": "investigate_dependency",
-                "error_type": type(e).__name__,
-                "message": str(e),
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "recovered": True,
-            })
+            diagnostic = _recovered_stage_error("investigate_dependency", e)
+            logger.warning("Investigation stage failed: node=%s category=%s exception=%s", diagnostic["node_name"], diagnostic["failure_category"], diagnostic["exception_class"])
+            errors.append(diagnostic)
 
         return {
             "findings": findings,
@@ -225,14 +220,9 @@ def build_investigation_graph(provider: AIProvider | None = None) -> Any:
             )
             findings.append(finding.model_dump(mode="json"))
         except Exception as e:
-            logger.warning("Application investigator encountered isolated failure: %s", e)
-            errors.append({
-                "node_name": "investigate_application",
-                "error_type": type(e).__name__,
-                "message": str(e),
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "recovered": True,
-            })
+            diagnostic = _recovered_stage_error("investigate_application", e)
+            logger.warning("Investigation stage failed: node=%s category=%s exception=%s", diagnostic["node_name"], diagnostic["failure_category"], diagnostic["exception_class"])
+            errors.append(diagnostic)
 
         return {
             "findings": findings,
@@ -284,14 +274,9 @@ def build_investigation_graph(provider: AIProvider | None = None) -> Any:
             corr = correlate_findings(findings=findings, evidence=evidence)
             correlations.append(corr.model_dump(mode="json"))
         except Exception as e:
-            logger.warning("Correlation node failure (isolated): %s", e)
-            errors.append({
-                "node_name": "correlation",
-                "error_type": type(e).__name__,
-                "message": str(e),
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "recovered": True,
-            })
+            diagnostic = _recovered_stage_error("correlation", e)
+            logger.warning("Investigation stage failed: node=%s category=%s exception=%s", diagnostic["node_name"], diagnostic["failure_category"], diagnostic["exception_class"])
+            errors.append(diagnostic)
 
         return {
             "correlations": correlations,
@@ -366,13 +351,7 @@ def build_investigation_graph(provider: AIProvider | None = None) -> Any:
                 validate_hypothesis_references(hypothesis, valid_ids)
                 hypotheses_data.append(hypothesis.model_dump(mode="json"))
             except Exception as e:
-                errors.append({
-                    "node_name": "hypotheses",
-                    "error_type": type(e).__name__,
-                    "message": str(e),
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
-                    "recovered": True,
-                })
+                errors.append(_recovered_stage_error("hypotheses", e))
                 return {"errors": errors, "metadata": metadata}
 
         # --- Deterministic competing hypothesis generation ---
@@ -435,14 +414,9 @@ def build_investigation_graph(provider: AIProvider | None = None) -> Any:
                 "metadata": metadata,
             }
         except Exception as e:
-            logger.warning("Challenge node failure (isolated): %s", e)
-            errors.append({
-                "node_name": "challenge",
-                "error_type": type(e).__name__,
-                "message": str(e),
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "recovered": True,
-            })
+            diagnostic = _recovered_stage_error("challenge", e)
+            logger.warning("Investigation stage failed: node=%s category=%s exception=%s", diagnostic["node_name"], diagnostic["failure_category"], diagnostic["exception_class"])
+            errors.append(diagnostic)
             return {
                 "errors": errors,
                 "metadata": metadata,

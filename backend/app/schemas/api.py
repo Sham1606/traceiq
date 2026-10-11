@@ -20,6 +20,7 @@ class HealthResponse(BaseModel):
     status: Literal["ok", "degraded"]
     version: str
     db: Literal["ok", "error"]
+    ai_mode: Literal["mock", "gemini", "deterministic", "unavailable"]
 
 
 # ---------------------------------------------------------------------------

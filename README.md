@@ -77,7 +77,7 @@ TRACEIQ strictly enforces deterministic telemetry boundaries:
 ### Key Architectural Layers:
 - **Evidence Engine (`backend/app/evidence/`)**: Ingests scenario telemetry, computes metric deltas, correlates timestamps, and produces typed evidence items.
 - **AI Layer (`backend/app/ai/`)**:
-  - **Provider Abstraction**: Multi-provider support (`mock`, `gemini`, `openai`, `anthropic`) with masked credential handling.
+      - **Provider Abstraction**: Supported providers are `mock` and `gemini`; credentials are environment-based and masked.
   - **LangGraph Orchestrator**: Stateful workflow managing `planner` $\rightarrow$ `hypotheses` $\rightarrow$ `evaluator` nodes.
   - **Reference Enforcement**: Rejects any hypothesis that cites invalid or fabricated evidence IDs.
   - **Deterministic Fallback**: Automatically falls back to deterministic rule engines if LLMs are offline, rate-limited, or timing out.
@@ -357,13 +357,14 @@ The AI layer is configured via environment variables. By default, it operates wi
 | Environment Variable | Allowed Values | Default | Description |
 | :--- | :--- | :--- | :--- |
 | `AI_ENABLED` | `true`, `false` | `false` | Enables LangGraph AI investigation execution |
-| `AI_PROVIDER` | `mock`, `gemini`, `openai`, `anthropic` | `mock` | Selected model provider |
-| `AI_MODEL` | string | `mock-reasoner` | Specific LLM model identifier |
+| `AI_PROVIDER` | `mock`, `gemini` | `mock` | Selected model provider; unsupported values fail clearly |
+| `AI_MODEL` | string | `mock-reasoner` | Mock model name; compatibility model setting for Gemini if `GEMINI_MODEL` is absent |
+| `GEMINI_MODEL` | string | Required for Gemini | Exact Gemini model identifier sent to the configured API |
 | `AI_TEMPERATURE` | float (`0.0` - `2.0`) | `0.0` | Sampling temperature |
 | `AI_TIMEOUT_SECONDS` | float | `30.0` | Request timeout before triggering fallback |
 | `GEMINI_API_KEY` | string | `None` | Google Gemini API key |
-| `OPENAI_API_KEY` | string | `None` | OpenAI API key |
-| `ANTHROPIC_API_KEY` | string | `None` | Anthropic Claude API key |
+
+Gemini requests authenticate with the `x-goog-api-key` header; the key is never placed in the URL or returned by the frontend. No Gemini model is silently substituted when configuration is missing.
 
 > **Graceful Fallback Guarantee**: If `AI_ENABLED=true` but the provider experiences network timeouts, quota limits, or invalid outputs, TRACEIQ automatically falls back to deterministic hypothesis generation and logs an `ai_investigation_fallback` audit event.
 

@@ -17,4 +17,6 @@ venv/
 .vscode/
 pgdata/
 *.db
-*.log
+*.log
+# Large demo recordings
+/demo/demo2.mp4
